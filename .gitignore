@@ -13,6 +13,9 @@ node_modules
 logs
 *.log
 
+# Firebase CLI cache
+.firebase
+
 # Misc
 .DS_Store
 .fleet

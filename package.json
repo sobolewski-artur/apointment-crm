@@ -9,6 +9,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
+    "deploy": "nuxt generate && firebase deploy --only hosting",
+    "deploy:rules": "firebase deploy --only firestore:rules",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
+    "firebase-tools": "^15.37.0",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.14"
   }

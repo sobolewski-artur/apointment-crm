@@ -55,8 +55,9 @@ export default defineNuxtConfig({
   },
 
   i18n: {
-    // Used for hreflang/canonical links. Override in production with NUXT_PUBLIC_I18N_BASE_URL
-    baseUrl: 'http://localhost:3000',
+    // Used for hreflang/canonical links (Firebase Hosting URL). Override with NUXT_PUBLIC_I18N_BASE_URL
+    // when using a custom domain.
+    baseUrl: 'https://apointment-crm.web.app',
     defaultLocale: 'pl',
     strategy: 'prefix_except_default',
     locales: [

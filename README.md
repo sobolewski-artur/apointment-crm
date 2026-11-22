@@ -18,12 +18,18 @@ pnpm dev         # http://localhost:3000
 pnpm typecheck
 ```
 
-## Production
+## Deploy (Firebase Hosting)
+
+The site is generated as static files (`nuxt generate`) and served by Firebase Hosting:
+https://apointment-crm.web.app
 
 ```bash
-pnpm build
-node --env-file=.env .output/server/index.mjs
+pnpm run deploy        # nuxt generate + firebase deploy --only hosting
+pnpm run deploy:rules  # upload firestore.rules
 ```
+
+The Firebase web config from `.env` is baked in at generate time. Requires being logged in:
+`pnpm exec firebase login`.
 
 ## Firestore
 
