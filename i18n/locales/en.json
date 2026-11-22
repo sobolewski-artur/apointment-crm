@@ -1,0 +1,8 @@
+{
+  "app": {
+    "title": "Appointment CRM",
+    "welcome": "Welcome to Appointment CRM",
+    "description": "Manage your clients and appointments in one place.",
+    "language": "Language"
+  }
+}
