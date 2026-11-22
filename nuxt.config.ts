@@ -9,6 +9,21 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Values are overridden at runtime by NUXT_PUBLIC_FIREBASE_* env vars (see .env.example)
+  runtimeConfig: {
+    public: {
+      firebase: {
+        apiKey: '',
+        authDomain: '',
+        projectId: '',
+        storageBucket: '',
+        messagingSenderId: '',
+        appId: '',
+        measurementId: '',
+      },
+    },
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },
