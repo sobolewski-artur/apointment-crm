@@ -177,6 +177,72 @@
     "rights": "Wszelkie prawa zastrzeżone.",
     "photos": "Autorzy zdjęć"
   },
+  "admin": {
+    "title": "Wizyty",
+    "badge": "Admin",
+    "viewSite": "Zobacz stronę",
+    "signOut": "Wyloguj",
+    "login": {
+      "title": "Logowanie do panelu",
+      "subtitle": "Tylko dla personelu salonu.",
+      "email": "E-mail",
+      "password": "Hasło",
+      "submit": "Zaloguj",
+      "signingIn": "Logowanie…",
+      "errors": {
+        "invalid": "Nieprawidłowy e-mail lub hasło.",
+        "notAdmin": "To konto nie ma dostępu do panelu administracyjnego.",
+        "tooMany": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+        "generic": "Logowanie nie powiodło się. Spróbuj ponownie."
+      }
+    },
+    "day": {
+      "today": "Dziś",
+      "prev": "Poprzedni dzień",
+      "next": "Następny dzień",
+      "pick": "Wybierz datę"
+    },
+    "stats": {
+      "appointments": "Wizyty",
+      "revenue": "Przewidywany przychód",
+      "pending": "Do potwierdzenia"
+    },
+    "filters": {
+      "staff": "Specjalista",
+      "allStaff": "Wszyscy specjaliści",
+      "status": "Status",
+      "allStatuses": "Wszystkie statusy"
+    },
+    "status": {
+      "pending": "Oczekuje",
+      "confirmed": "Potwierdzona",
+      "completed": "Zrealizowana",
+      "cancelled": "Odwołana",
+      "no-show": "Nieobecność"
+    },
+    "actions": {
+      "confirmed": "Potwierdź",
+      "completed": "Oznacz jako zrealizowaną",
+      "no-show": "Nieobecność",
+      "cancelled": "Odwołaj wizytę",
+      "confirmCancel": "Odwołać tę wizytę? Termin znów będzie dostępny do rezerwacji.",
+      "error": "Nie udało się zaktualizować wizyty. Spróbuj ponownie."
+    },
+    "details": {
+      "phone": "Telefon",
+      "email": "E-mail",
+      "treatments": "Zabiegi",
+      "notes": "Uwagi klienta",
+      "booked": "Zarezerwowano",
+      "language": "Język"
+    },
+    "loading": "Wczytywanie wizyt…",
+    "loadError": "Nie udało się wczytać wizyt. Sprawdź połączenie i czy Twoje konto ma uprawnienia administratora.",
+    "empty": "Brak wizyt w tym dniu.",
+    "pendingTitle": "Oczekujące na potwierdzenie",
+    "pendingEmpty": "Brak wizyt do potwierdzenia.",
+    "showDay": "Pokaż ten dzień"
+  },
   "images": {
     "hero": "Kobieta podczas zabiegu z maseczką na twarz w spa",
     "salon": "Klientka czekająca w jasnym, nowoczesnym salonie"

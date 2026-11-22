@@ -10,6 +10,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import type { BusySlot } from '~/utils/schedule'
+import { busySlotId, withTimeout } from '~/utils/firestore'
 
 export interface AppointmentInput {
   treatments: { id: string, price: number, durationMin: number }[]
@@ -27,17 +28,6 @@ export interface AppointmentInput {
   notes: string
   locale: string
 }
-
-/** Firestore retries silently forever when the backend is unreachable - fail visibly instead */
-const withTimeout = <T>(promise: Promise<T>, ms: number, label: string) =>
-  new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms} ms`)), ms)
-    promise.then(resolve, reject).finally(() => clearTimeout(timer))
-  })
-
-/** Id of the busy-slot doc. One specialist can't have two bookings starting at the same time:
- *  creating an existing doc counts as an update, which the rules deny, so the batch fails. */
-const busySlotId = (staffId: string, date: string, start: number) => `${staffId}_${date}_${start}`
 
 /** A rejected write most likely means the specialist was booked by someone else a moment ago */
 export const isSlotTakenError = (error: unknown) =>

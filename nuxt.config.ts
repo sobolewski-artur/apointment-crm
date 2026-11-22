@@ -38,11 +38,19 @@ export default defineNuxtConfig({
     },
   },
 
+  // Admin panel depends on the browser's Firebase Auth session - render it client-side only
+  routeRules: {
+    '/admin': { ssr: false },
+    '/admin/**': { ssr: false },
+    '/en/admin': { ssr: false },
+    '/en/admin/**': { ssr: false },
+  },
+
   vite: {
     plugins: [tailwindcss()],
     // Pre-bundle Firebase so the dev server doesn't re-optimize and reload on first use
     optimizeDeps: {
-      include: ['firebase/app', 'firebase/analytics', 'firebase/firestore'],
+      include: ['firebase/app', 'firebase/analytics', 'firebase/auth', 'firebase/firestore'],
     },
   },
 

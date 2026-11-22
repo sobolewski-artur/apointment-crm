@@ -177,6 +177,72 @@
     "rights": "All rights reserved.",
     "photos": "Photo credits"
   },
+  "admin": {
+    "title": "Appointments",
+    "badge": "Admin",
+    "viewSite": "View website",
+    "signOut": "Sign out",
+    "login": {
+      "title": "Admin sign-in",
+      "subtitle": "For salon staff only.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "signingIn": "Signing in…",
+      "errors": {
+        "invalid": "Incorrect email or password.",
+        "notAdmin": "This account doesn't have access to the admin panel.",
+        "tooMany": "Too many attempts. Please wait a moment and try again.",
+        "generic": "Sign-in failed. Please try again."
+      }
+    },
+    "day": {
+      "today": "Today",
+      "prev": "Previous day",
+      "next": "Next day",
+      "pick": "Pick a date"
+    },
+    "stats": {
+      "appointments": "Appointments",
+      "revenue": "Expected revenue",
+      "pending": "To confirm"
+    },
+    "filters": {
+      "staff": "Specialist",
+      "allStaff": "All specialists",
+      "status": "Status",
+      "allStatuses": "All statuses"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "no-show": "No-show"
+    },
+    "actions": {
+      "confirmed": "Confirm",
+      "completed": "Mark completed",
+      "no-show": "No-show",
+      "cancelled": "Cancel visit",
+      "confirmCancel": "Cancel this appointment? The time will become available for booking again.",
+      "error": "Couldn't update the appointment. Please try again."
+    },
+    "details": {
+      "phone": "Phone",
+      "email": "Email",
+      "treatments": "Treatments",
+      "notes": "Client notes",
+      "booked": "Booked on",
+      "language": "Language"
+    },
+    "loading": "Loading appointments…",
+    "loadError": "Couldn't load appointments. Check your connection and that your account has admin access.",
+    "empty": "No appointments on this day.",
+    "pendingTitle": "Awaiting confirmation",
+    "pendingEmpty": "Nothing to confirm.",
+    "showDay": "Show this day"
+  },
   "images": {
     "hero": "Woman receiving a facial mask treatment at the spa",
     "salon": "Client waiting in a bright, modern salon"
