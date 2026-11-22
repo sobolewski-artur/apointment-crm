@@ -24,10 +24,18 @@ export interface Appointment extends AppointmentInput {
   createdAt: Date | null
 }
 
+/** Restoring a cancelled visit failed: the specialist has another booking at that time now */
+export class SlotUnavailableError extends Error {
+  constructor() {
+    super('Specialist is no longer free at this time')
+    this.name = 'SlotUnavailableError'
+  }
+}
+
 /** Only upcoming visits can be moved */
 export const canReschedule = (a: Appointment) => a.status === 'pending' || a.status === 'confirmed'
 
-/** Status changes an admin can make from each status */
+/** Quick-action buttons per status (the "Change status" select still allows any status) */
 export const NEXT_STATUSES: Record<AppointmentStatus, AppointmentStatus[]> = {
   'pending': ['confirmed', 'cancelled'],
   'confirmed': ['completed', 'no-show', 'cancelled'],
@@ -49,6 +57,7 @@ type LoadState = 'loading' | 'ready' | 'error'
 /** Live appointments for one day + all upcoming pending ones. Must be called in component setup. */
 export const useAdminAppointments = (date: Ref<string>) => {
   const db = getFirestore(useFirebaseApp())
+  const bookingApi = useBookingApi()
   const appointmentsRef = collection(db, 'appointments')
 
   const day = ref<Appointment[]>([])
@@ -97,12 +106,32 @@ export const useAdminAppointments = (date: Ref<string>) => {
     clearTimeout(dayTimer)
   })
 
-  /** Cancelling also removes the busy slot, so the time can be booked again */
+  /**
+   * Any status can change to any other. Invariant: every non-cancelled appointment holds a busy slot.
+   *  - to "cancelled": the busy slot is removed, so the time can be booked again
+   *  - from "cancelled": the slot is taken again, if the specialist is still free at that time
+   *    (throws SlotUnavailableError otherwise; an exact same-start clash is also rejected by the rules)
+   */
   const setStatus = async (appointment: Appointment, status: AppointmentStatus) => {
+    if (status === appointment.status) return
+    const slotRef = doc(db, 'busySlots', busySlotId(appointment.staffId, appointment.date, appointment.startMinutes))
     const batch = writeBatch(db)
     batch.update(doc(appointmentsRef, appointment.id), { status, updatedAt: serverTimestamp() })
+
     if (status === 'cancelled') {
-      batch.delete(doc(db, 'busySlots', busySlotId(appointment.staffId, appointment.date, appointment.startMinutes)))
+      batch.delete(slotRef)
+    }
+    else if (appointment.status === 'cancelled') {
+      const busy = (await bookingApi.fetchBusySlots(appointment.date)).filter(b => b.appointmentId !== appointment.id)
+      const stillFree = freeStaffAt(appointment.startMinutes, appointment.durationMin, [appointment.staffId], busy).length > 0
+      if (!stillFree) throw new SlotUnavailableError()
+      batch.set(slotRef, {
+        appointmentId: appointment.id,
+        staffId: appointment.staffId,
+        date: appointment.date,
+        start: appointment.startMinutes,
+        end: appointment.startMinutes + appointment.durationMin,
+      })
     }
     await withTimeout(batch.commit(), 20_000, 'setStatus')
   }

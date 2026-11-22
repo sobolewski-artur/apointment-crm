@@ -84,8 +84,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // A slot can only be taken for a live (not cancelled) appointment, so nobody can
+    // block the calendar by re-creating the slot of a cancelled booking
     function matchesAppointment(appt, slot) {
-      return appt.staffId == slot.staffId
+      return appt.status != 'cancelled'
+        && appt.staffId == slot.staffId
         && appt.date == slot.date
         && appt.startMinutes == slot.start
         && slot.end == slot.start + appt.durationMin;

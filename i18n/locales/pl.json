@@ -226,6 +226,9 @@
       "no-show": "Nieobecność",
       "cancelled": "Odwołaj wizytę",
       "confirmCancel": "Odwołać tę wizytę? Termin znów będzie dostępny do rezerwacji.",
+      "confirmRestore": "Przywrócić odwołaną wizytę? Jej termin zostanie ponownie zarezerwowany.",
+      "changeStatus": "Zmień status",
+      "restoreConflict": "Nie można przywrócić: {staff} ma już inną wizytę w tym czasie. Utwórz nową rezerwację na inny termin.",
       "error": "Nie udało się zaktualizować wizyty. Spróbuj ponownie."
     },
     "details": {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { APPOINTMENT_STATUSES, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
-import { staff } from '~/data/staff'
+import { APPOINTMENT_STATUSES, SlotUnavailableError, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
+import { isSlotTakenError } from '~/composables/useBookingApi'
+import { getStaff, staff } from '~/data/staff'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -74,17 +75,21 @@ function onRescheduled(newDate: string, start: number) {
 
 /* ---------- Actions ---------- */
 const savingId = ref<string | null>(null)
-const actionError = ref(false)
+const actionError = ref<string | null>(null)
 
 async function changeStatus(appointment: Appointment, status: AppointmentStatus) {
   savingId.value = appointment.id
-  actionError.value = false
+  actionError.value = null
   try {
     await setStatus(appointment, status)
   }
   catch (error) {
     console.error('[admin] status change failed', error)
-    actionError.value = true
+    // Restoring a cancelled visit whose time has been taken in the meantime
+    const slotGone = error instanceof SlotUnavailableError || (appointment.status === 'cancelled' && isSlotTakenError(error))
+    actionError.value = slotGone
+      ? t('admin.actions.restoreConflict', { staff: getStaff(appointment.staffId)?.name ?? appointment.staffName })
+      : t('admin.actions.error')
   }
   finally {
     savingId.value = null
@@ -159,7 +164,7 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
       </div>
 
       <p v-if="actionError" class="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200" role="alert">
-        {{ t('admin.actions.error') }}
+        {{ actionError }}
       </p>
 
       <!-- List -->

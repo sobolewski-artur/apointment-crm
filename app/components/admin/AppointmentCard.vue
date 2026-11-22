@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NEXT_STATUSES, canReschedule, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
+import { APPOINTMENT_STATUSES, NEXT_STATUSES, canReschedule, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
 import { getStaff } from '~/data/staff'
 
 const props = defineProps<{ appointment: Appointment, saving: boolean }>()
@@ -31,17 +31,32 @@ const actionClass: Record<AppointmentStatus, string> = {
 }
 
 function act(status: AppointmentStatus) {
+  if (status === a.value.status) return
   if (status === 'cancelled' && !window.confirm(t('admin.actions.confirmCancel'))) return
+  if (a.value.status === 'cancelled' && !window.confirm(t('admin.actions.confirmRestore'))) return
   emit('status', status)
+}
+
+/** "Change status" select: any status -> any other, including restoring a cancelled visit */
+const statusSelectId = useId()
+function onStatusSelect(event: Event) {
+  const select = event.target as HTMLSelectElement
+  const status = select.value as AppointmentStatus
+  select.value = a.value.status // stay on the real status until Firestore confirms the change
+  act(status)
 }
 </script>
 
 <template>
-  <article
-    class="rounded-2xl bg-white ring-1 ring-stone-200 transition"
-    :class="a.status === 'cancelled' && 'opacity-60'"
-  >
-    <button type="button" class="flex w-full items-start gap-4 p-4 text-left" :aria-expanded="open" @click="open = !open">
+  <article class="rounded-2xl bg-white ring-1 ring-stone-200 transition">
+    <!-- Only the summary is dimmed for cancelled visits; the details and controls stay readable -->
+    <button
+      type="button"
+      class="flex w-full items-start gap-4 p-4 text-left"
+      :class="a.status === 'cancelled' && 'opacity-60'"
+      :aria-expanded="open"
+      @click="open = !open"
+    >
       <div class="w-14 shrink-0 text-center sm:w-16">
         <div class="text-lg font-semibold leading-tight text-stone-900">{{ formatTime(a.startMinutes) }}</div>
         <div class="text-xs text-stone-500">{{ formatTime(end) }}</div>
@@ -143,6 +158,19 @@ function act(status: AppointmentStatus) {
         >
           {{ t('admin.actions.cancelled') }}
         </button>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-stone-100 pt-3">
+        <label :for="statusSelectId" class="text-xs font-medium text-stone-500">{{ t('admin.actions.changeStatus') }}</label>
+        <select
+          :id="statusSelectId"
+          :value="a.status"
+          :disabled="saving"
+          class="rounded-lg border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-stone-800 ring-1 ring-stone-300 focus:ring-2 focus:ring-rose-400 focus:outline-none disabled:opacity-60"
+          @change="onStatusSelect"
+        >
+          <option v-for="s in APPOINTMENT_STATUSES" :key="s" :value="s">{{ t(`admin.status.${s}`) }}</option>
+        </select>
       </div>
     </div>
   </article>

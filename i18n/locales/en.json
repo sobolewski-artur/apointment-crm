@@ -226,6 +226,9 @@
       "no-show": "No-show",
       "cancelled": "Cancel visit",
       "confirmCancel": "Cancel this appointment? The time will become available for booking again.",
+      "confirmRestore": "Restore this cancelled appointment? Its time will be booked again.",
+      "changeStatus": "Change status",
+      "restoreConflict": "Can't restore: {staff} already has another booking at this time. Create a new booking for a different time instead.",
       "error": "Couldn't update the appointment. Please try again."
     },
     "details": {
