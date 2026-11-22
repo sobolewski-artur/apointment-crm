@@ -12,6 +12,8 @@ import {
 import type { BusySlot } from '~/utils/schedule'
 import { busySlotId, withTimeout } from '~/utils/firestore'
 
+export type BookingSource = 'online' | 'phone'
+
 export interface AppointmentInput {
   treatments: { id: string, price: number, durationMin: number }[]
   totalPrice: number
@@ -55,11 +57,18 @@ export const useBookingApi = () => {
     })
   }
 
-  const createAppointment = async (input: AppointmentInput) => {
+  /**
+   * Online bookings start as "pending". Admins can create "confirmed" phone bookings
+   * (enforced in firestore.rules: only admins may use source "phone").
+   */
+  const createAppointment = async (
+    input: AppointmentInput,
+    { status = 'pending', source = 'online' }: { status?: 'pending' | 'confirmed', source?: BookingSource } = {},
+  ) => {
     const appointmentRef = doc(collection(db, 'appointments'))
     const batch = writeBatch(db)
 
-    batch.set(appointmentRef, { ...input, status: 'pending', createdAt: serverTimestamp() })
+    batch.set(appointmentRef, { ...input, status, source, createdAt: serverTimestamp() })
     batch.set(doc(db, 'busySlots', busySlotId(input.staffId, input.date, input.startMinutes)), {
       appointmentId: appointmentRef.id,
       staffId: input.staffId,

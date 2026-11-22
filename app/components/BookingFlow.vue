@@ -1,35 +1,31 @@
 <script setup lang="ts">
-import { BOOKING_DAYS_AHEAD, MIN_LEAD_MIN, SLOT_STEP_MIN, openingHours } from '~/data/salon'
-import { getStaff, qualifiedStaff } from '~/data/staff'
+import { BOOKING_DAYS_AHEAD, MIN_LEAD_MIN, openingHours } from '~/data/salon'
+import { getStaff } from '~/data/staff'
 import { isSlotTakenError } from '~/composables/useBookingApi'
-import type { BusySlot } from '~/utils/schedule'
+import { ANY_STAFF as ANY } from '~/composables/useBookingSlots'
 
 const { t, locale } = useI18n()
 const fmt = useFormat()
 const { items, count, totalPrice, totalDuration, remove, clear } = useCart()
 const api = useBookingApi()
 
+const {
+  selectedStaff,
+  eligibleStaff,
+  noSpecialist,
+  selectedDate,
+  selectedStart,
+  slotsState,
+  slots,
+  assignedStaffId,
+  loadBusy,
+} = useBookingSlots(items, { minLeadMin: MIN_LEAD_MIN })
+
 /* ---------- Specialist ---------- */
-const ANY = 'any'
-const selectedStaff = ref<string>(ANY)
-
-/** Specialists who can do the whole visit (every selected treatment) */
-const eligibleStaff = computed(() => qualifiedStaff([...new Set(items.value.map(i => i.category))]))
-const noSpecialist = computed(() => count.value > 0 && eligibleStaff.value.length === 0)
-
-// Cart changed and the chosen person no longer does all treatments -> back to "any"
-watch(eligibleStaff, (list) => {
-  if (selectedStaff.value !== ANY && !list.some(s => s.id === selectedStaff.value)) selectedStaff.value = ANY
-})
-
 const staffOptions = computed(() => [
   { id: ANY, name: t('booking.anySpecialist'), sub: t('booking.anySpecialistHint') },
   ...eligibleStaff.value.map(s => ({ id: s.id, name: s.name, sub: t(`booking.roles.${s.role}`) })),
 ])
-
-const candidateIds = computed(() =>
-  selectedStaff.value === ANY ? eligibleStaff.value.map(s => s.id) : [selectedStaff.value],
-)
 
 const initials = (name: string) =>
   name.replace(/^dr\.?\s+/i, '').split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
@@ -42,67 +38,6 @@ const days = Array.from({ length: BOOKING_DAYS_AHEAD }, (_, i) => {
   const date = new Date(today)
   date.setDate(today.getDate() + i)
   return { key: toDateKey(date), date, open: !!openingHours[date.getDay()] }
-})
-
-const selectedDate = ref<string | null>(null)
-const selectedStart = ref<number | null>(null)
-
-/* ---------- Availability ---------- */
-const busy = ref<BusySlot[]>([])
-const slotsState = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
-
-async function loadBusy(date: string) {
-  slotsState.value = 'loading'
-  try {
-    const result = await api.fetchBusySlots(date)
-    if (selectedDate.value !== date) return // user switched day meanwhile
-    busy.value = result
-    slotsState.value = 'ready'
-  }
-  catch (error) {
-    console.error('[booking] failed to load availability', error)
-    if (selectedDate.value === date) slotsState.value = 'error'
-  }
-}
-
-watch(selectedDate, (date) => {
-  selectedStart.value = null
-  busy.value = []
-  if (date) loadBusy(date)
-})
-
-const duration = computed(() => Math.max(totalDuration.value, SLOT_STEP_MIN))
-
-/** Start times where at least one candidate specialist is free for the whole visit */
-const slots = computed(() => {
-  if (!selectedDate.value || slotsState.value !== 'ready' || !candidateIds.value.length) return []
-  const date = fromDateKey(selectedDate.value)
-  const hours = openingHours[date.getDay()]
-  if (!hours) return []
-
-  const now = new Date()
-  const earliest = selectedDate.value === toDateKey(now)
-    ? now.getHours() * 60 + now.getMinutes() + MIN_LEAD_MIN
-    : 0
-
-  const result: number[] = []
-  for (let start = hours.open; start + duration.value <= hours.close; start += SLOT_STEP_MIN) {
-    if (start < earliest) continue
-    if (freeStaffAt(start, duration.value, candidateIds.value, busy.value).length) result.push(start)
-  }
-  return result
-})
-
-// Treatments or specialist changed - drop a start time that is no longer available
-watch(slots, (list) => {
-  if (selectedStart.value !== null && !list.includes(selectedStart.value)) selectedStart.value = null
-})
-
-/** Who will actually perform the visit at the selected time */
-const assignedStaffId = computed(() => {
-  if (selectedStart.value === null) return null
-  const free = freeStaffAt(selectedStart.value, duration.value, candidateIds.value, busy.value)
-  return pickLeastBusy(free, busy.value) ?? null
 })
 
 /* ---------- Form ---------- */

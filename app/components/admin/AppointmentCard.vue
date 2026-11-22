@@ -53,6 +53,9 @@ function act(status: AppointmentStatus) {
           <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="statusClass[a.status]">
             {{ t(`admin.status.${a.status}`) }}
           </span>
+          <span v-if="a.source === 'phone'" class="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-semibold text-stone-600">
+            ☎ {{ t('admin.source.phone') }}
+          </span>
         </div>
         <div class="mt-0.5 truncate text-sm text-stone-600">
           {{ a.treatments.map(tr => t(`treatments.items.${tr.id}.name`)).join(', ') }}

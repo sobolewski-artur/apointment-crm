@@ -236,6 +236,27 @@
       "booked": "Booked on",
       "language": "Language"
     },
+    "newBooking": {
+      "open": "New booking",
+      "title": "New phone booking",
+      "subtitle": "Bookings taken by phone are saved as confirmed.",
+      "client": "Client",
+      "treatments": "Treatments",
+      "specialist": "Specialist",
+      "dateTime": "Date & time",
+      "pickTreatmentsFirst": "Select treatments to see free times.",
+      "closedDay": "The salon is closed on this day.",
+      "noSpecialist": "No single specialist performs all selected treatments. Create separate bookings for injectables and lash & brow treatments.",
+      "save": "Save booking",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "saved": "Booking saved.",
+      "error": "Couldn't save the booking. Please try again."
+    },
+    "source": {
+      "phone": "Phone"
+    },
     "loading": "Loading appointments…",
     "loadError": "Couldn't load appointments. Check your connection and that your account has admin access.",
     "empty": "No appointments on this day.",

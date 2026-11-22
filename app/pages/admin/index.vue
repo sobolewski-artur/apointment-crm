@@ -43,6 +43,20 @@ const stats = computed(() => {
   }
 })
 
+/* ---------- Phone booking ---------- */
+const showNewBooking = ref(false)
+const savedNotice = ref(false)
+let noticeTimer: ReturnType<typeof setTimeout> | undefined
+
+function onBookingSaved(savedDate: string) {
+  showNewBooking.value = false
+  date.value = savedDate // jump to the day the visit was booked on
+  savedNotice.value = true
+  clearTimeout(noticeTimer)
+  noticeTimer = setTimeout(() => (savedNotice.value = false), 4000)
+}
+onBeforeUnmount(() => clearTimeout(noticeTimer))
+
 /* ---------- Actions ---------- */
 const savingId = ref<string | null>(null)
 const actionError = ref(false)
@@ -88,7 +102,18 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
           </button>
           <input v-model="date" type="date" required class="ml-1 rounded-lg border-0 bg-white px-2.5 py-2 text-sm ring-1 ring-stone-300" :aria-label="t('admin.day.pick')">
         </div>
+        <button
+          type="button"
+          class="w-full rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-700 sm:w-auto"
+          @click="showNewBooking = true"
+        >
+          + {{ t('admin.newBooking.open') }}
+        </button>
       </div>
+
+      <p v-if="savedNotice" class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200" role="status">
+        {{ t('admin.newBooking.saved') }}
+      </p>
 
       <!-- Stats -->
       <div class="mt-5 grid grid-cols-3 gap-3">
@@ -168,5 +193,12 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
         </ul>
       </div>
     </aside>
+
+    <AdminNewBookingDialog
+      v-if="showNewBooking"
+      :initial-date="date"
+      @close="showNewBooking = false"
+      @saved="onBookingSaved"
+    />
   </div>
 </template>

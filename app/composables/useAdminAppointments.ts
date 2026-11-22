@@ -10,7 +10,7 @@ import {
   type DocumentSnapshot,
   type Timestamp,
 } from 'firebase/firestore'
-import type { AppointmentInput } from './useBookingApi'
+import type { AppointmentInput, BookingSource } from './useBookingApi'
 
 export const APPOINTMENT_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled', 'no-show'] as const
 export type AppointmentStatus = typeof APPOINTMENT_STATUSES[number]
@@ -18,6 +18,8 @@ export type AppointmentStatus = typeof APPOINTMENT_STATUSES[number]
 export interface Appointment extends AppointmentInput {
   id: string
   status: AppointmentStatus
+  /** Missing on bookings made before phone bookings existed (= online) */
+  source?: BookingSource
   createdAt: Date | null
 }
 

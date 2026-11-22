@@ -236,6 +236,27 @@
       "booked": "Zarezerwowano",
       "language": "Język"
     },
+    "newBooking": {
+      "open": "Nowa rezerwacja",
+      "title": "Nowa rezerwacja telefoniczna",
+      "subtitle": "Rezerwacje przyjęte telefonicznie są zapisywane jako potwierdzone.",
+      "client": "Klient",
+      "treatments": "Zabiegi",
+      "specialist": "Specjalista",
+      "dateTime": "Data i godzina",
+      "pickTreatmentsFirst": "Wybierz zabiegi, aby zobaczyć wolne terminy.",
+      "closedDay": "Salon jest nieczynny w tym dniu.",
+      "noSpecialist": "Żaden specjalista nie wykonuje wszystkich wybranych zabiegów. Utwórz osobne rezerwacje dla zabiegów iniekcyjnych oraz zabiegów na rzęsy i brwi.",
+      "save": "Zapisz rezerwację",
+      "saving": "Zapisywanie…",
+      "cancel": "Anuluj",
+      "close": "Zamknij",
+      "saved": "Rezerwacja zapisana.",
+      "error": "Nie udało się zapisać rezerwacji. Spróbuj ponownie."
+    },
+    "source": {
+      "phone": "Telefon"
+    },
     "loading": "Wczytywanie wizyt…",
     "loadError": "Nie udało się wczytać wizyt. Sprawdź połączenie i czy Twoje konto ma uprawnienia administratora.",
     "empty": "Brak wizyt w tym dniu.",

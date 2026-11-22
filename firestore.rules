@@ -6,11 +6,16 @@ service cloud.firestore {
     function validAppointment(d) {
       return d.keys().hasOnly([
           'treatments', 'totalPrice', 'durationMin', 'date', 'startMinutes', 'startTime',
-          'staffId', 'staffName', 'customer', 'notes', 'locale', 'status', 'createdAt'
+          'staffId', 'staffName', 'customer', 'notes', 'locale', 'status', 'source', 'createdAt'
         ])
         && d.staffId is string && d.staffId.size() > 0 && d.staffId.size() <= 40
         && d.staffName is string && d.staffName.size() <= 100
-        && d.status == 'pending'
+        && (
+          // Anyone: online booking awaiting confirmation
+          (d.source == 'online' && d.status == 'pending')
+          // Admins: booking taken by phone, usually confirmed right away
+          || (d.source == 'phone' && d.status in ['pending', 'confirmed'] && isAdmin())
+        )
         && d.createdAt == request.time
         && d.treatments is list && d.treatments.size() > 0 && d.treatments.size() <= 20
         && d.totalPrice is int && d.totalPrice >= 0
