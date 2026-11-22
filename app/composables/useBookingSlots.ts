@@ -9,7 +9,14 @@ export const ANY_STAFF = 'any'
  * Specialist + date + time selection shared by the public booking flow and the admin phone booking.
  * Must be called in component setup.
  */
-export const useBookingSlots = (items: Ref<Treatment[]>, options: { minLeadMin: number }) => {
+export const useBookingSlots = (
+  items: Ref<Treatment[]>,
+  options: {
+    minLeadMin: number
+    /** Rescheduling: the appointment's own current slot doesn't block it */
+    excludeAppointmentId?: string
+  },
+) => {
   const api = useBookingApi()
 
   /* ---------- Specialist ---------- */
@@ -39,7 +46,9 @@ export const useBookingSlots = (items: Ref<Treatment[]>, options: { minLeadMin: 
     try {
       const result = await api.fetchBusySlots(date)
       if (selectedDate.value !== date) return // user switched day meanwhile
-      busy.value = result
+      busy.value = options.excludeAppointmentId
+        ? result.filter(b => b.appointmentId !== options.excludeAppointmentId)
+        : result
       slotsState.value = 'ready'
     }
     catch (error) {

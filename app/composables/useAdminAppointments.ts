@@ -11,6 +11,7 @@ import {
   type Timestamp,
 } from 'firebase/firestore'
 import type { AppointmentInput, BookingSource } from './useBookingApi'
+import { getStaff } from '~/data/staff'
 
 export const APPOINTMENT_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled', 'no-show'] as const
 export type AppointmentStatus = typeof APPOINTMENT_STATUSES[number]
@@ -22,6 +23,9 @@ export interface Appointment extends AppointmentInput {
   source?: BookingSource
   createdAt: Date | null
 }
+
+/** Only upcoming visits can be moved */
+export const canReschedule = (a: Appointment) => a.status === 'pending' || a.status === 'confirmed'
 
 /** Status changes an admin can make from each status */
 export const NEXT_STATUSES: Record<AppointmentStatus, AppointmentStatus[]> = {
@@ -103,5 +107,38 @@ export const useAdminAppointments = (date: Ref<string>) => {
     await withTimeout(batch.commit(), 20_000, 'setStatus')
   }
 
-  return { day, dayState, pending, setStatus }
+  /**
+   * Move a visit to another date/time and/or specialist. In one batch: update the appointment,
+   * free the old busy slot and take the new one. If the new slot doc already exists (someone just
+   * booked that specialist at that time) the rules reject the batch -> isSlotTakenError().
+   */
+  const reschedule = async (appointment: Appointment, to: { date: string, startMinutes: number, staffId: string }) => {
+    const staffMember = getStaff(to.staffId)
+    if (!staffMember) throw new Error(`Unknown staff member ${to.staffId}`)
+
+    const oldSlotId = busySlotId(appointment.staffId, appointment.date, appointment.startMinutes)
+    const newSlotId = busySlotId(to.staffId, to.date, to.startMinutes)
+    if (oldSlotId === newSlotId) return // nothing changes
+
+    const batch = writeBatch(db)
+    batch.update(doc(appointmentsRef, appointment.id), {
+      date: to.date,
+      startMinutes: to.startMinutes,
+      startTime: formatTime(to.startMinutes),
+      staffId: staffMember.id,
+      staffName: staffMember.name,
+      updatedAt: serverTimestamp(),
+    })
+    batch.delete(doc(db, 'busySlots', oldSlotId))
+    batch.set(doc(db, 'busySlots', newSlotId), {
+      appointmentId: appointment.id,
+      staffId: staffMember.id,
+      date: to.date,
+      start: to.startMinutes,
+      end: to.startMinutes + appointment.durationMin,
+    })
+    await withTimeout(batch.commit(), 20_000, 'reschedule')
+  }
+
+  return { day, dayState, pending, setStatus, reschedule }
 }

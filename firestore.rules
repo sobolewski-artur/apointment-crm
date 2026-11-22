@@ -3,13 +3,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // New booking
     function validAppointment(d) {
       return d.keys().hasOnly([
           'treatments', 'totalPrice', 'durationMin', 'date', 'startMinutes', 'startTime',
           'staffId', 'staffName', 'customer', 'notes', 'locale', 'status', 'source', 'createdAt'
         ])
-        && d.staffId is string && d.staffId.size() > 0 && d.staffId.size() <= 40
-        && d.staffName is string && d.staffName.size() <= 100
         && (
           // Anyone: online booking awaiting confirmation
           (d.source == 'online' && d.status == 'pending')
@@ -17,6 +16,13 @@ service cloud.firestore {
           || (d.source == 'phone' && d.status in ['pending', 'confirmed'] && isAdmin())
         )
         && d.createdAt == request.time
+        && validBookingFields(d);
+    }
+
+    // Field types and limits - checked on create and after admin edits (e.g. rescheduling)
+    function validBookingFields(d) {
+      return d.staffId is string && d.staffId.size() > 0 && d.staffId.size() <= 40
+        && d.staffName is string && d.staffName.size() <= 100
         && d.treatments is list && d.treatments.size() > 0 && d.treatments.size() <= 20
         && d.totalPrice is int && d.totalPrice >= 0
         && d.durationMin is int && d.durationMin > 0 && d.durationMin <= 600
@@ -44,14 +50,19 @@ service cloud.firestore {
     }
 
     // Full bookings with personal data: clients may only create them,
-    // admins may read them and change their status.
+    // admins may read them, change their status and reschedule them.
+    // Treatments, prices and client details can't be changed.
     match /appointments/{id} {
       allow create: if validAppointment(request.resource.data);
       allow read: if isAdmin();
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'status', 'updatedAt',
+             'date', 'startMinutes', 'startTime', 'staffId', 'staffName'
+           ])
         && request.resource.data.status in ['pending', 'confirmed', 'completed', 'cancelled', 'no-show']
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.updatedAt == request.time
+        && validBookingFields(request.resource.data);
       allow delete: if false;
     }
 
@@ -69,7 +80,7 @@ service cloud.firestore {
              getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data,
              request.resource.data);
       allow update: if false;
-      // Admins free the time when cancelling an appointment
+      // Admins free the time when cancelling or rescheduling an appointment
       allow delete: if isAdmin();
     }
 

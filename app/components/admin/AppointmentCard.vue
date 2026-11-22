@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { NEXT_STATUSES, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
+import { NEXT_STATUSES, canReschedule, type Appointment, type AppointmentStatus } from '~/composables/useAdminAppointments'
 import { getStaff } from '~/data/staff'
 
 const props = defineProps<{ appointment: Appointment, saving: boolean }>()
-const emit = defineEmits<{ status: [status: AppointmentStatus] }>()
+const emit = defineEmits<{ status: [status: AppointmentStatus], reschedule: [] }>()
 
 const { t } = useI18n()
 const fmt = useFormat()
@@ -111,9 +111,9 @@ function act(status: AppointmentStatus) {
         </div>
       </dl>
 
-      <div v-if="actions.length" class="mt-4 flex flex-wrap gap-2">
+      <div v-if="actions.length || canReschedule(a)" class="mt-4 flex flex-wrap gap-2">
         <button
-          v-for="status in actions"
+          v-for="status in actions.filter(s => s !== 'cancelled')"
           :key="status"
           type="button"
           :disabled="saving"
@@ -122,6 +122,26 @@ function act(status: AppointmentStatus) {
           @click="act(status)"
         >
           {{ t(`admin.actions.${status}`) }}
+        </button>
+        <button
+          v-if="canReschedule(a)"
+          type="button"
+          :disabled="saving"
+          class="rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-stone-800 ring-1 ring-stone-300 transition hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60"
+          @click="emit('reschedule')"
+        >
+          {{ t('admin.reschedule.open') }}
+        </button>
+        <!-- Destructive action last -->
+        <button
+          v-if="actions.includes('cancelled')"
+          type="button"
+          :disabled="saving"
+          class="rounded-lg px-3.5 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60 sm:ml-auto"
+          :class="actionClass.cancelled"
+          @click="act('cancelled')"
+        >
+          {{ t('admin.actions.cancelled') }}
         </button>
       </div>
     </div>

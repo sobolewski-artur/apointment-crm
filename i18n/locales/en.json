@@ -257,6 +257,18 @@
     "source": {
       "phone": "Phone"
     },
+    "reschedule": {
+      "open": "Reschedule",
+      "title": "Reschedule appointment",
+      "current": "Current booking",
+      "newTime": "New date & time",
+      "currentTime": "Current time",
+      "moveTo": "Move to",
+      "unchanged": "Choose a different time or specialist.",
+      "save": "Save new time",
+      "saved": "Appointment moved to {when}.",
+      "error": "Couldn't reschedule the appointment. Please try again."
+    },
     "loading": "Loading appointments…",
     "loadError": "Couldn't load appointments. Check your connection and that your account has admin access.",
     "empty": "No appointments on this day.",

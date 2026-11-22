@@ -257,6 +257,18 @@
     "source": {
       "phone": "Telefon"
     },
+    "reschedule": {
+      "open": "Przełóż",
+      "title": "Przełóż wizytę",
+      "current": "Obecny termin",
+      "newTime": "Nowa data i godzina",
+      "currentTime": "Obecna godzina",
+      "moveTo": "Nowy termin",
+      "unchanged": "Wybierz inną godzinę lub specjalistę.",
+      "save": "Zapisz nowy termin",
+      "saved": "Wizyta przeniesiona na {when}.",
+      "error": "Nie udało się przełożyć wizyty. Spróbuj ponownie."
+    },
     "loading": "Wczytywanie wizyt…",
     "loadError": "Nie udało się wczytać wizyt. Sprawdź połączenie i czy Twoje konto ma uprawnienia administratora.",
     "empty": "Brak wizyt w tym dniu.",

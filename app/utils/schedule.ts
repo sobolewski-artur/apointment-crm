@@ -1,4 +1,6 @@
 export interface BusySlot {
+  /** Booking that occupies the slot - lets rescheduling ignore the appointment's own time */
+  appointmentId?: string
   staffId: string
   /** Minutes from midnight */
   start: number

@@ -24,7 +24,7 @@ const shiftDay = (days: number) => {
 const dayLabel = computed(() => fmt.date(fromDateKey(date.value), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))
 
 /* ---------- Data ---------- */
-const { day, dayState, pending, setStatus } = useAdminAppointments(date)
+const { day, dayState, pending, setStatus, reschedule } = useAdminAppointments(date)
 
 const staffFilter = ref('all')
 const statusFilter = ref<'all' | AppointmentStatus>('all')
@@ -43,19 +43,34 @@ const stats = computed(() => {
   }
 })
 
+/* ---------- Notices ---------- */
+const notice = ref<string | null>(null)
+let noticeTimer: ReturnType<typeof setTimeout> | undefined
+function showNotice(message: string) {
+  notice.value = message
+  clearTimeout(noticeTimer)
+  noticeTimer = setTimeout(() => (notice.value = null), 5000)
+}
+onBeforeUnmount(() => clearTimeout(noticeTimer))
+
 /* ---------- Phone booking ---------- */
 const showNewBooking = ref(false)
-const savedNotice = ref(false)
-let noticeTimer: ReturnType<typeof setTimeout> | undefined
 
 function onBookingSaved(savedDate: string) {
   showNewBooking.value = false
   date.value = savedDate // jump to the day the visit was booked on
-  savedNotice.value = true
-  clearTimeout(noticeTimer)
-  noticeTimer = setTimeout(() => (savedNotice.value = false), 4000)
+  showNotice(t('admin.newBooking.saved'))
 }
-onBeforeUnmount(() => clearTimeout(noticeTimer))
+
+/* ---------- Reschedule ---------- */
+const rescheduling = ref<Appointment | null>(null)
+
+function onRescheduled(newDate: string, start: number) {
+  rescheduling.value = null
+  date.value = newDate
+  const when = `${fmt.date(fromDateKey(newDate), { weekday: 'short', day: 'numeric', month: 'short' })}, ${formatTime(start)}`
+  showNotice(t('admin.reschedule.saved', { when }))
+}
 
 /* ---------- Actions ---------- */
 const savingId = ref<string | null>(null)
@@ -111,8 +126,8 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
         </button>
       </div>
 
-      <p v-if="savedNotice" class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200" role="status">
-        {{ t('admin.newBooking.saved') }}
+      <p v-if="notice" class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200" role="status">
+        {{ notice }}
       </p>
 
       <!-- Stats -->
@@ -159,6 +174,7 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
             :appointment="a"
             :saving="savingId === a.id"
             @status="status => changeStatus(a, status)"
+            @reschedule="rescheduling = a"
           />
         </div>
       </div>
@@ -199,6 +215,15 @@ const selectClass = 'rounded-xl border-0 bg-white py-2 pl-3 pr-8 text-sm text-st
       :initial-date="date"
       @close="showNewBooking = false"
       @saved="onBookingSaved"
+    />
+
+    <AdminRescheduleDialog
+      v-if="rescheduling"
+      :key="rescheduling.id"
+      :appointment="rescheduling"
+      :reschedule="reschedule"
+      @close="rescheduling = null"
+      @saved="onRescheduled"
     />
   </div>
 </template>

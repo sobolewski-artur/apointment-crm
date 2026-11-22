@@ -52,8 +52,8 @@ export const useBookingApi = () => {
       'fetchBusySlots',
     )
     return snap.docs.map((d) => {
-      const { staffId, start, end } = d.data() as BusySlot
-      return { staffId, start, end }
+      const { appointmentId, staffId, start, end } = d.data() as BusySlot
+      return { appointmentId, staffId, start, end }
     })
   }
 
