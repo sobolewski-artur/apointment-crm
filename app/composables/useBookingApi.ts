@@ -1,3 +1,4 @@
+import { FirebaseError } from 'firebase/app'
 import {
   collection,
   doc,
@@ -8,11 +9,7 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore'
-
-export interface BusySlot {
-  start: number
-  end: number
-}
+import type { BusySlot } from '~/utils/schedule'
 
 export interface AppointmentInput {
   treatments: { id: string, price: number, durationMin: number }[]
@@ -23,6 +20,9 @@ export interface AppointmentInput {
   startMinutes: number
   /** "HH:MM" - convenience for reading in the Firebase console */
   startTime: string
+  staffId: string
+  /** Convenience for reading in the Firebase console */
+  staffName: string
   customer: { name: string, phone: string, email: string }
   notes: string
   locale: string
@@ -35,10 +35,18 @@ const withTimeout = <T>(promise: Promise<T>, ms: number, label: string) =>
     promise.then(resolve, reject).finally(() => clearTimeout(timer))
   })
 
+/** Id of the busy-slot doc. One specialist can't have two bookings starting at the same time:
+ *  creating an existing doc counts as an update, which the rules deny, so the batch fails. */
+const busySlotId = (staffId: string, date: string, start: number) => `${staffId}_${date}_${start}`
+
+/** A rejected write most likely means the specialist was booked by someone else a moment ago */
+export const isSlotTakenError = (error: unknown) =>
+  error instanceof FirebaseError && error.code === 'permission-denied'
+
 /**
  * Firestore layout:
- *  - appointments/{id}  full booking incl. personal data (create-only for clients)
- *  - busySlots/{id}     same id, only date + time range (publicly readable, used for availability)
+ *  - appointments/{autoId}                   full booking incl. personal data (create-only for clients)
+ *  - busySlots/{staffId}_{date}_{start}      staff + time range only (publicly readable, used for availability)
  * See firestore.rules.
  */
 export const useBookingApi = () => {
@@ -52,8 +60,8 @@ export const useBookingApi = () => {
       'fetchBusySlots',
     )
     return snap.docs.map((d) => {
-      const { start, end } = d.data() as BusySlot
-      return { start, end }
+      const { staffId, start, end } = d.data() as BusySlot
+      return { staffId, start, end }
     })
   }
 
@@ -62,7 +70,9 @@ export const useBookingApi = () => {
     const batch = writeBatch(db)
 
     batch.set(appointmentRef, { ...input, status: 'pending', createdAt: serverTimestamp() })
-    batch.set(doc(db, 'busySlots', appointmentRef.id), {
+    batch.set(doc(db, 'busySlots', busySlotId(input.staffId, input.date, input.startMinutes)), {
+      appointmentId: appointmentRef.id,
+      staffId: input.staffId,
       date: input.date,
       start: input.startMinutes,
       end: input.startMinutes + input.durationMin,

@@ -18,8 +18,8 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="mt-24 border-t border-stone-200 bg-white">
-    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2">
+  <footer class="mt-16 border-t border-stone-200 bg-white sm:mt-24">
+    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 sm:py-12 md:grid-cols-2 md:gap-10">
       <div>
         <div class="font-serif text-xl font-semibold text-stone-900">
           Aura <span class="text-rose-500">Beauty</span>
@@ -38,6 +38,8 @@ const year = new Date().getFullYear()
     </div>
     <div class="border-t border-stone-100 py-5 text-center text-xs text-stone-400">
       © {{ year }} {{ t('brand') }}. {{ t('footer.rights') }}
+      ·
+      <NuxtLinkLocale to="/credits" class="underline-offset-2 hover:text-stone-600 hover:underline">{{ t('footer.photos') }}</NuxtLinkLocale>
     </div>
   </footer>
 </template>

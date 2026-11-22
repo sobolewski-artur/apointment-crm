@@ -31,6 +31,8 @@
         "text": "Odświeżamy rysy twarzy, nie zmieniając tego, kim jesteś."
       }
     },
+    "badgeLabel": "Rezerwacja online",
+    "badgeValue": "24/7 w mniej niż minutę",
     "ctaTitle": "Zarezerwuj swój termin",
     "ctaText": "Wybierz dogodny dzień i godzinę – zajmie to mniej niż minutę."
   },
@@ -104,6 +106,7 @@
     "loading": "Ładowanie…",
     "steps": {
       "treatments": "Twoje zabiegi",
+      "specialist": "Specjalista",
       "datetime": "Data i godzina",
       "details": "Twoje dane"
     },
@@ -111,6 +114,15 @@
     "browse": "Przeglądaj zabiegi",
     "addMore": "+ Dodaj kolejne zabiegi",
     "remove": "Usuń",
+    "specialistAfterTreatments": "Najpierw wybierz zabiegi, aby zobaczyć dostępnych specjalistów.",
+    "anySpecialist": "Dowolny dostępny specjalista",
+    "anySpecialistHint": "Więcej wolnych terminów",
+    "noSpecialist": "Żaden specjalista nie wykonuje wszystkich wybranych zabiegów. Zabiegi iniekcyjne oraz zabiegi na rzęsy i brwi zarezerwuj jako osobne wizyty.",
+    "slotTaken": "Ten termin został właśnie zarezerwowany przez kogoś innego. Wybierz inną godzinę.",
+    "roles": {
+      "doctor": "Lekarz medycyny estetycznej",
+      "cosmetologist": "Kosmetolog"
+    },
     "closed": "Nieczynne",
     "pickDate": "Wybierz dzień, aby zobaczyć dostępne godziny.",
     "checking": "Sprawdzamy dostępność…",
@@ -131,6 +143,7 @@
       "duration": "Czas trwania",
       "date": "Data",
       "time": "Godzina",
+      "specialist": "Specjalista",
       "total": "Razem",
       "notSelected": "Nie wybrano",
       "payNote": "Płatność w salonie po wizycie."
@@ -161,6 +174,17 @@
     "saturday": "Sobota",
     "sunday": "Niedziela",
     "closed": "Nieczynne",
-    "rights": "Wszelkie prawa zastrzeżone."
+    "rights": "Wszelkie prawa zastrzeżone.",
+    "photos": "Autorzy zdjęć"
+  },
+  "images": {
+    "hero": "Kobieta podczas zabiegu z maseczką na twarz w spa",
+    "salon": "Klientka czekająca w jasnym, nowoczesnym salonie"
+  },
+  "credits": {
+    "title": "Autorzy zdjęć",
+    "subtitle": "Zdjęcia użyte na stronie pochodzą z serwisu",
+    "photoBy": "Autor zdjęcia:",
+    "by": "Zdjęcie: {author}"
   }
 }

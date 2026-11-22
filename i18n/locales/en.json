@@ -31,6 +31,8 @@
         "text": "We refresh your features without changing who you are."
       }
     },
+    "badgeLabel": "Online booking",
+    "badgeValue": "24/7 in under a minute",
     "ctaTitle": "Reserve your visit",
     "ctaText": "Choose a convenient day and time — it takes less than a minute."
   },
@@ -104,6 +106,7 @@
     "loading": "Loading…",
     "steps": {
       "treatments": "Your treatments",
+      "specialist": "Specialist",
       "datetime": "Date & time",
       "details": "Your details"
     },
@@ -111,6 +114,15 @@
     "browse": "Browse treatments",
     "addMore": "+ Add more treatments",
     "remove": "Remove",
+    "specialistAfterTreatments": "Select treatments first to see available specialists.",
+    "anySpecialist": "Any available specialist",
+    "anySpecialistHint": "More free times",
+    "noSpecialist": "No single specialist performs all selected treatments. Please book injectables and lash & brow treatments as separate visits.",
+    "slotTaken": "This time was just booked by someone else. Please choose another time.",
+    "roles": {
+      "doctor": "Aesthetic medicine doctor",
+      "cosmetologist": "Cosmetologist"
+    },
     "closed": "Closed",
     "pickDate": "Select a day to see available times.",
     "checking": "Checking availability…",
@@ -131,6 +143,7 @@
       "duration": "Duration",
       "date": "Date",
       "time": "Time",
+      "specialist": "Specialist",
       "total": "Total",
       "notSelected": "Not selected",
       "payNote": "Payment at the salon after your visit."
@@ -161,6 +174,17 @@
     "saturday": "Saturday",
     "sunday": "Sunday",
     "closed": "Closed",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "photos": "Photo credits"
+  },
+  "images": {
+    "hero": "Woman receiving a facial mask treatment at the spa",
+    "salon": "Client waiting in a bright, modern salon"
+  },
+  "credits": {
+    "title": "Photo credits",
+    "subtitle": "Photos used on this website come from",
+    "photoBy": "Photo by",
+    "by": "Photo by {author}"
   }
 }

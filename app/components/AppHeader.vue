@@ -12,7 +12,7 @@ const links = [
 
 <template>
   <header class="sticky top-0 z-30 border-b border-stone-200/70 bg-stone-50/85 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
+    <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3">
       <NuxtLinkLocale to="/" class="font-serif text-xl font-semibold tracking-tight text-stone-900">
         Aura <span class="text-rose-500">Beauty</span>
       </NuxtLinkLocale>
@@ -35,7 +35,7 @@ const links = [
             v-for="l in locales"
             :key="l.code"
             :to="switchLocalePath(l.code)"
-            class="rounded-full px-2.5 py-1 uppercase transition"
+            class="flex min-h-8 min-w-9 items-center justify-center rounded-full px-2.5 uppercase transition"
             :class="l.code === locale ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-800'"
             :aria-current="l.code === locale ? 'true' : undefined"
           >
@@ -61,12 +61,12 @@ const links = [
       </div>
     </div>
 
-    <nav class="flex gap-6 overflow-x-auto px-4 pb-2.5 text-sm font-medium text-stone-600 md:hidden">
+    <nav class="flex gap-5 overflow-x-auto px-4 pb-1 text-sm font-medium text-stone-600 md:hidden">
       <NuxtLinkLocale
         v-for="link in links"
         :key="link.to"
         :to="link.to"
-        class="whitespace-nowrap"
+        class="whitespace-nowrap py-2"
         exact-active-class="text-rose-600"
       >
         {{ t(link.label) }}

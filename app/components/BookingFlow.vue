@@ -1,11 +1,38 @@
 <script setup lang="ts">
 import { BOOKING_DAYS_AHEAD, MIN_LEAD_MIN, SLOT_STEP_MIN, openingHours } from '~/data/salon'
-import type { BusySlot } from '~/composables/useBookingApi'
+import { getStaff, qualifiedStaff } from '~/data/staff'
+import { isSlotTakenError } from '~/composables/useBookingApi'
+import type { BusySlot } from '~/utils/schedule'
 
 const { t, locale } = useI18n()
 const fmt = useFormat()
 const { items, count, totalPrice, totalDuration, remove, clear } = useCart()
 const api = useBookingApi()
+
+/* ---------- Specialist ---------- */
+const ANY = 'any'
+const selectedStaff = ref<string>(ANY)
+
+/** Specialists who can do the whole visit (every selected treatment) */
+const eligibleStaff = computed(() => qualifiedStaff([...new Set(items.value.map(i => i.category))]))
+const noSpecialist = computed(() => count.value > 0 && eligibleStaff.value.length === 0)
+
+// Cart changed and the chosen person no longer does all treatments -> back to "any"
+watch(eligibleStaff, (list) => {
+  if (selectedStaff.value !== ANY && !list.some(s => s.id === selectedStaff.value)) selectedStaff.value = ANY
+})
+
+const staffOptions = computed(() => [
+  { id: ANY, name: t('booking.anySpecialist'), sub: t('booking.anySpecialistHint') },
+  ...eligibleStaff.value.map(s => ({ id: s.id, name: s.name, sub: t(`booking.roles.${s.role}`) })),
+])
+
+const candidateIds = computed(() =>
+  selectedStaff.value === ANY ? eligibleStaff.value.map(s => s.id) : [selectedStaff.value],
+)
+
+const initials = (name: string) =>
+  name.replace(/^dr\.?\s+/i, '').split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
 
 /* ---------- Days ---------- */
 const today = new Date()
@@ -44,42 +71,50 @@ watch(selectedDate, (date) => {
   if (date) loadBusy(date)
 })
 
+const duration = computed(() => Math.max(totalDuration.value, SLOT_STEP_MIN))
+
+/** Start times where at least one candidate specialist is free for the whole visit */
 const slots = computed(() => {
-  if (!selectedDate.value || slotsState.value !== 'ready') return []
+  if (!selectedDate.value || slotsState.value !== 'ready' || !candidateIds.value.length) return []
   const date = fromDateKey(selectedDate.value)
   const hours = openingHours[date.getDay()]
   if (!hours) return []
 
-  const duration = Math.max(totalDuration.value, SLOT_STEP_MIN)
   const now = new Date()
   const earliest = selectedDate.value === toDateKey(now)
     ? now.getHours() * 60 + now.getMinutes() + MIN_LEAD_MIN
     : 0
 
   const result: number[] = []
-  for (let start = hours.open; start + duration <= hours.close; start += SLOT_STEP_MIN) {
-    const end = start + duration
+  for (let start = hours.open; start + duration.value <= hours.close; start += SLOT_STEP_MIN) {
     if (start < earliest) continue
-    if (busy.value.some(b => start < b.end && b.start < end)) continue
-    result.push(start)
+    if (freeStaffAt(start, duration.value, candidateIds.value, busy.value).length) result.push(start)
   }
   return result
 })
 
-// Changing treatments changes the duration - drop a start time that no longer fits
+// Treatments or specialist changed - drop a start time that is no longer available
 watch(slots, (list) => {
   if (selectedStart.value !== null && !list.includes(selectedStart.value)) selectedStart.value = null
+})
+
+/** Who will actually perform the visit at the selected time */
+const assignedStaffId = computed(() => {
+  if (selectedStart.value === null) return null
+  const free = freeStaffAt(selectedStart.value, duration.value, candidateIds.value, busy.value)
+  return pickLeastBusy(free, busy.value) ?? null
 })
 
 /* ---------- Form ---------- */
 const form = reactive({ name: '', phone: '', email: '', notes: '', consent: false })
 const attempted = ref(false)
 const submitting = ref(false)
-const submitError = ref(false)
+const submitError = ref<'taken' | 'generic' | null>(null)
 
 const errors = computed(() => {
   const e: Partial<Record<'treatments' | 'slot' | 'name' | 'phone' | 'email' | 'consent', string>> = {}
   if (!count.value) e.treatments = t('booking.errors.treatments')
+  else if (noSpecialist.value) e.treatments = t('booking.noSpecialist')
   if (selectedStart.value === null) e.slot = t('booking.errors.slot')
   if (!form.name.trim()) e.name = t('booking.errors.name')
   if (!/^\+?[\d\s()-]{7,20}$/.test(form.phone.trim())) e.phone = t('booking.errors.phone')
@@ -94,6 +129,7 @@ interface Confirmation {
   name: string
   date: string
   start: number
+  staffName: string
   treatmentIds: string[]
   total: number
 }
@@ -101,10 +137,11 @@ const confirmation = ref<Confirmation | null>(null)
 
 async function submit() {
   attempted.value = true
-  if (Object.keys(errors.value).length || !selectedDate.value || selectedStart.value === null) return
+  const staffMember = assignedStaffId.value ? getStaff(assignedStaffId.value) : undefined
+  if (Object.keys(errors.value).length || !selectedDate.value || selectedStart.value === null || !staffMember) return
 
   submitting.value = true
-  submitError.value = false
+  submitError.value = null
   const date = selectedDate.value
   const start = selectedStart.value
 
@@ -116,6 +153,8 @@ async function submit() {
       date,
       startMinutes: start,
       startTime: formatTime(start),
+      staffId: staffMember.id,
+      staffName: staffMember.name,
       customer: { name: form.name.trim(), phone: form.phone.trim(), email: form.email.trim() },
       notes: form.notes.trim(),
       locale: locale.value,
@@ -125,6 +164,7 @@ async function submit() {
       name: form.name.trim(),
       date,
       start,
+      staffName: staffMember.name,
       treatmentIds: items.value.map(i => i.id),
       total: totalPrice.value,
     }
@@ -132,12 +172,14 @@ async function submit() {
     Object.assign(form, { name: '', phone: '', email: '', notes: '', consent: false })
     attempted.value = false
     selectedDate.value = null
+    selectedStaff.value = ANY
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   catch (error) {
     console.error('[booking] failed to create appointment', error)
-    submitError.value = true
-    loadBusy(date) // the slot may have just been taken - refresh availability
+    submitError.value = isSlotTakenError(error) ? 'taken' : 'generic'
+    // Refresh availability; the `slots` watcher drops the selected time if it's gone
+    await loadBusy(date)
   }
   finally {
     submitting.value = false
@@ -164,6 +206,7 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
         <div class="mt-1 font-semibold text-stone-900">
           {{ longDate(confirmation.date) }}, {{ formatTime(confirmation.start) }}
         </div>
+        <div class="mt-1 text-sm text-stone-600">{{ t('booking.summary.specialist') }}: {{ confirmation.staffName }}</div>
         <ul class="mt-3 space-y-1 text-sm text-stone-600">
           <li v-for="id in confirmation.treatmentIds" :key="id">• {{ t(`treatments.items.${id}.name`) }}</li>
         </ul>
@@ -187,10 +230,11 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
     </div>
 
     <!-- Booking form -->
-    <form v-else class="grid gap-8 lg:grid-cols-3" novalidate @submit.prevent="submit">
-      <div class="space-y-6 lg:col-span-2">
+    <!-- grid-cols-1 + min-w-0: stop the scrollable day strip from widening the column on small screens -->
+    <form v-else class="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3" novalidate @submit.prevent="submit">
+      <div class="min-w-0 space-y-4 sm:space-y-6 lg:col-span-2">
         <!-- 1. Treatments -->
-        <section class="rounded-2xl bg-white p-6 ring-1 ring-stone-200">
+        <section class="rounded-2xl bg-white p-4 ring-1 ring-stone-200 sm:p-6">
           <h2 class="flex items-center gap-3 text-lg font-semibold text-stone-900">
             <span class="flex size-7 items-center justify-center rounded-full bg-rose-100 text-sm text-rose-700">1</span>
             {{ t('booking.steps.treatments') }}
@@ -205,7 +249,15 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
 
           <template v-else>
             <ul class="mt-5 divide-y divide-stone-100">
-              <li v-for="item in items" :key="item.id" class="flex items-center gap-4 py-3">
+              <li v-for="item in items" :key="item.id" class="flex items-center gap-3 py-3 sm:gap-4">
+                <UnsplashImage
+                  :photo="item.image"
+                  alt=""
+                  :aspect="1"
+                  :widths="[96, 160]"
+                  sizes="56px"
+                  class="size-12 shrink-0 rounded-xl sm:size-14"
+                />
                 <div class="min-w-0 flex-1">
                   <div class="font-medium text-stone-900">{{ t(`treatments.items.${item.id}.name`) }}</div>
                   <div class="text-xs text-stone-500">{{ fmt.duration(item.durationMin) }}</div>
@@ -231,14 +283,53 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
           <p v-if="showError('treatments')" class="mt-3 text-sm text-red-600">{{ showError('treatments') }}</p>
         </section>
 
-        <!-- 2. Date & time -->
-        <section class="rounded-2xl bg-white p-6 ring-1 ring-stone-200">
+        <!-- 2. Specialist -->
+        <section class="rounded-2xl bg-white p-4 ring-1 ring-stone-200 sm:p-6">
           <h2 class="flex items-center gap-3 text-lg font-semibold text-stone-900">
             <span class="flex size-7 items-center justify-center rounded-full bg-rose-100 text-sm text-rose-700">2</span>
+            {{ t('booking.steps.specialist') }}
+          </h2>
+
+          <p v-if="!count" class="mt-5 text-sm text-stone-500">{{ t('booking.specialistAfterTreatments') }}</p>
+          <p v-else-if="noSpecialist" class="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-800 ring-1 ring-amber-200">
+            {{ t('booking.noSpecialist') }}
+          </p>
+          <div v-else class="mt-5 grid gap-2 sm:grid-cols-2" role="radiogroup" :aria-label="t('booking.steps.specialist')">
+            <button
+              v-for="option in staffOptions"
+              :key="option.id"
+              type="button"
+              role="radio"
+              :aria-checked="selectedStaff === option.id"
+              class="flex items-center gap-3 rounded-xl p-3 text-left transition"
+              :class="selectedStaff === option.id
+                ? 'bg-rose-50 ring-2 ring-rose-400'
+                : 'bg-stone-50 ring-1 ring-stone-200 hover:ring-stone-400'"
+              @click="selectedStaff = option.id"
+            >
+              <span
+                class="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                :class="option.id === ANY ? 'bg-stone-900 text-white' : 'bg-rose-100 text-rose-700'"
+                aria-hidden="true"
+              >
+                {{ option.id === ANY ? '★' : initials(option.name) }}
+              </span>
+              <span class="min-w-0">
+                <span class="block truncate font-medium text-stone-900">{{ option.name }}</span>
+                <span class="block truncate text-xs text-stone-500">{{ option.sub }}</span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 3. Date & time -->
+        <section class="rounded-2xl bg-white p-4 ring-1 ring-stone-200 sm:p-6">
+          <h2 class="flex items-center gap-3 text-lg font-semibold text-stone-900">
+            <span class="flex size-7 items-center justify-center rounded-full bg-rose-100 text-sm text-rose-700">3</span>
             {{ t('booking.steps.datetime') }}
           </h2>
 
-          <div class="-mx-6 mt-5 overflow-x-auto px-6 pb-2">
+          <div class="-mx-4 mt-5 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6">
             <div class="flex gap-2">
               <button
                 v-for="day in days"
@@ -291,10 +382,10 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
           <p v-if="showError('slot')" class="mt-3 text-sm text-red-600">{{ showError('slot') }}</p>
         </section>
 
-        <!-- 3. Details -->
-        <section class="rounded-2xl bg-white p-6 ring-1 ring-stone-200">
+        <!-- 4. Details -->
+        <section class="rounded-2xl bg-white p-4 ring-1 ring-stone-200 sm:p-6">
           <h2 class="flex items-center gap-3 text-lg font-semibold text-stone-900">
-            <span class="flex size-7 items-center justify-center rounded-full bg-rose-100 text-sm text-rose-700">3</span>
+            <span class="flex size-7 items-center justify-center rounded-full bg-rose-100 text-sm text-rose-700">4</span>
             {{ t('booking.steps.details') }}
           </h2>
 
@@ -332,8 +423,8 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
       </div>
 
       <!-- Summary -->
-      <aside class="lg:sticky lg:top-24 lg:self-start">
-        <div class="rounded-2xl bg-white p-6 ring-1 ring-stone-200">
+      <aside class="min-w-0 lg:sticky lg:top-24 lg:self-start">
+        <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200 sm:p-6">
           <h2 class="text-lg font-semibold text-stone-900">{{ t('booking.summary.title') }}</h2>
           <dl class="mt-4 space-y-2.5 text-sm">
             <div class="flex justify-between gap-4">
@@ -352,6 +443,12 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
                 {{ selectedStart !== null ? `${formatTime(selectedStart)} – ${formatTime(selectedStart + totalDuration)}` : t('booking.summary.notSelected') }}
               </dd>
             </div>
+            <div class="flex justify-between gap-4">
+              <dt class="text-stone-500">{{ t('booking.summary.specialist') }}</dt>
+              <dd class="text-right font-medium text-stone-800">
+                {{ assignedStaffId ? getStaff(assignedStaffId)?.name : selectedStaff === ANY ? t('booking.anySpecialist') : getStaff(selectedStaff)?.name }}
+              </dd>
+            </div>
           </dl>
           <div class="mt-5 flex items-baseline justify-between border-t border-stone-100 pt-5">
             <span class="font-semibold text-stone-900">{{ t('booking.summary.total') }}</span>
@@ -366,7 +463,9 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
           >
             {{ submitting ? t('booking.submitting') : t('booking.submit') }}
           </button>
-          <p v-if="submitError" class="mt-3 text-sm text-red-600">{{ t('booking.submitError') }}</p>
+          <p v-if="submitError" class="mt-3 text-sm text-red-600">
+            {{ submitError === 'taken' ? t('booking.slotTaken') : t('booking.submitError') }}
+          </p>
         </div>
       </aside>
     </form>

@@ -6,8 +6,10 @@ service cloud.firestore {
     function validAppointment(d) {
       return d.keys().hasOnly([
           'treatments', 'totalPrice', 'durationMin', 'date', 'startMinutes', 'startTime',
-          'customer', 'notes', 'locale', 'status', 'createdAt'
+          'staffId', 'staffName', 'customer', 'notes', 'locale', 'status', 'createdAt'
         ])
+        && d.staffId is string && d.staffId.size() > 0 && d.staffId.size() <= 40
+        && d.staffName is string && d.staffName.size() <= 100
         && d.status == 'pending'
         && d.createdAt == request.time
         && d.treatments is list && d.treatments.size() > 0 && d.treatments.size() <= 20
@@ -31,17 +33,27 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // Anonymous time ranges used to compute availability.
-    // Must be written in the same batch as its appointment (same document id).
+    // Per-specialist time ranges (no personal data) used to compute availability.
+    // Id is "{staffId}_{date}_{start}" and docs can't be overwritten, so the same specialist
+    // can't get two bookings with the same start time (the second batch fails).
+    // Must be written in the same batch as its appointment.
     match /busySlots/{id} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['date', 'start', 'end'])
-        && existsAfter(/databases/$(database)/documents/appointments/$(id))
-        && getAfter(/databases/$(database)/documents/appointments/$(id)).data.date == request.resource.data.date
-        && getAfter(/databases/$(database)/documents/appointments/$(id)).data.startMinutes == request.resource.data.start
-        && request.resource.data.end == request.resource.data.start
-             + getAfter(/databases/$(database)/documents/appointments/$(id)).data.durationMin;
+      allow create: if request.resource.data.keys().hasOnly(['appointmentId', 'staffId', 'date', 'start', 'end'])
+        && request.resource.data.appointmentId is string
+        && id == request.resource.data.staffId + '_' + request.resource.data.date + '_' + string(request.resource.data.start)
+        && existsAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId))
+        && matchesAppointment(
+             getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data,
+             request.resource.data);
       allow update, delete: if false;
+    }
+
+    function matchesAppointment(appt, slot) {
+      return appt.staffId == slot.staffId
+        && appt.date == slot.date
+        && appt.startMinutes == slot.start
+        && slot.end == slot.start + appt.durationMin;
     }
   }
 }
