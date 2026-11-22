@@ -1,8 +1,166 @@
 {
-  "app": {
-    "title": "Appointment CRM",
-    "welcome": "Witaj w Appointment CRM",
-    "description": "Zarządzaj klientami i wizytami w jednym miejscu.",
+  "brand": "Aura Beauty",
+  "nav": {
+    "home": "Strona główna",
+    "treatments": "Zabiegi",
+    "booking": "Umów wizytę",
+    "cart": "Wybrane zabiegi",
     "language": "Język"
+  },
+  "home": {
+    "eyebrow": "Medycyna estetyczna i kosmetologia",
+    "title": "Naturalne efekty w rękach ekspertów",
+    "subtitle": "Botoks, wypełniacze, stymulatory tkankowe i zabiegi na twarz wykonywane przez certyfikowanych specjalistów. Wybierz zabiegi i umów wizytę w minutę.",
+    "ctaTreatments": "Przeglądaj zabiegi",
+    "ctaBook": "Umów wizytę",
+    "featuredTitle": "Popularne zabiegi",
+    "featuredSubtitle": "Ulubione zabiegi naszych klientów.",
+    "seeAll": "Zobacz wszystkie zabiegi",
+    "whyTitle": "Dlaczego Aura Beauty",
+    "why": {
+      "experts": {
+        "title": "Certyfikowani specjaliści",
+        "text": "Zabiegi iniekcyjne wykonują wyłącznie wykwalifikowani, doświadczeni specjaliści, a każdy z nich poprzedza konsultacja."
+      },
+      "safety": {
+        "title": "Bezpieczne, atestowane preparaty",
+        "text": "Stosujemy wyłącznie certyfikowane preparaty oraz sterylny, jednorazowy sprzęt."
+      },
+      "natural": {
+        "title": "Naturalny wygląd",
+        "text": "Odświeżamy rysy twarzy, nie zmieniając tego, kim jesteś."
+      }
+    },
+    "ctaTitle": "Zarezerwuj swój termin",
+    "ctaText": "Wybierz dogodny dzień i godzinę – zajmie to mniej niż minutę."
+  },
+  "categories": {
+    "all": "Wszystkie",
+    "injectables": "Zabiegi iniekcyjne",
+    "facial": "Zabiegi na twarz",
+    "lashes": "Rzęsy i brwi"
+  },
+  "treatments": {
+    "title": "Zabiegi",
+    "subtitle": "Wybierz jeden lub więcej zabiegów i przejdź do rezerwacji.",
+    "add": "Dodaj",
+    "added": "Dodano",
+    "selectedBar": "Nie wybrano zabiegów | Wybrano 1 zabieg | Wybrano {count} zabiegi | Wybrano {count} zabiegów",
+    "continue": "Przejdź do rezerwacji",
+    "items": {
+      "botox-1-area": {
+        "name": "Botoks – 1 okolica",
+        "description": "Wygładza zmarszczki mimiczne w wybranej okolicy: czoło, lwia zmarszczka lub kurze łapki."
+      },
+      "botox-3-areas": {
+        "name": "Botoks – 3 okolice",
+        "description": "Kompleksowe odmłodzenie górnej części twarzy: czoło, lwia zmarszczka i kurze łapki podczas jednej wizyty."
+      },
+      "botox-bruxism": {
+        "name": "Botoks na bruksizm",
+        "description": "Rozluźnia mięśnie żwacze, łagodząc zgrzytanie zębami i napięcie żuchwy oraz wysmuklając jej linię."
+      },
+      "botox-hyperhidrosis": {
+        "name": "Botoks na nadpotliwość",
+        "description": "Blokuje gruczoły potowe pod pachami, zapewniając suchość nawet przez 6–9 miesięcy."
+      },
+      "lip-augmentation": {
+        "name": "Powiększanie ust",
+        "description": "Wypełniacz z kwasem hialuronowym (1 ml) dla pełniejszych, wyraźnie zarysowanych i nawilżonych ust."
+      },
+      "skin-booster": {
+        "name": "Stymulator tkankowy",
+        "description": "Intensywne nawilżenie kwasem hialuronowym, które poprawia jędrność, elastyczność i blask skóry."
+      },
+      "mesotherapy": {
+        "name": "Mezoterapia igłowa",
+        "description": "Koktajl witamin i substancji aktywnych podawany w skórę w celu jej rewitalizacji."
+      },
+      "deep-cleansing": {
+        "name": "Oczyszczanie twarzy",
+        "description": "Profesjonalne oczyszczanie, złuszczanie i nawilżenie dla świeżej, promiennej skóry."
+      },
+      "chemical-peel": {
+        "name": "Peeling chemiczny",
+        "description": "Złuszczanie kwasami, które wyrównuje koloryt, redukuje przebarwienia i zwęża pory."
+      },
+      "microneedling": {
+        "name": "Mikronakłuwanie",
+        "description": "Pobudza produkcję kolagenu, redukując blizny, drobne zmarszczki i rozszerzone pory."
+      },
+      "lash-lift": {
+        "name": "Lifting i farbowanie rzęs",
+        "description": "Podkręca i przyciemnia naturalne rzęsy – efekt utrzymuje się do 6 tygodni."
+      },
+      "brow-lamination": {
+        "name": "Laminacja brwi",
+        "description": "Układa i utrwala włoski brwi dla pełnego, zadbanego wyglądu – z regulacją i henną."
+      }
+    }
+  },
+  "booking": {
+    "title": "Umów wizytę",
+    "subtitle": "Sprawdź wybrane zabiegi, wybierz termin i zostaw dane kontaktowe.",
+    "loading": "Ładowanie…",
+    "steps": {
+      "treatments": "Twoje zabiegi",
+      "datetime": "Data i godzina",
+      "details": "Twoje dane"
+    },
+    "empty": "Nie wybrano jeszcze żadnych zabiegów.",
+    "browse": "Przeglądaj zabiegi",
+    "addMore": "+ Dodaj kolejne zabiegi",
+    "remove": "Usuń",
+    "closed": "Nieczynne",
+    "pickDate": "Wybierz dzień, aby zobaczyć dostępne godziny.",
+    "checking": "Sprawdzamy dostępność…",
+    "noSlots": "Brak wolnych terminów w tym dniu. Wybierz inną datę.",
+    "slotsError": "Nie udało się wczytać dostępnych terminów.",
+    "retry": "Spróbuj ponownie",
+    "fields": {
+      "name": "Imię i nazwisko",
+      "phone": "Numer telefonu",
+      "email": "E-mail",
+      "optional": "opcjonalnie",
+      "notes": "Uwagi",
+      "notesPlaceholder": "Czy jest coś, o czym powinniśmy wiedzieć przed wizytą?",
+      "consent": "Wyrażam zgodę na przetwarzanie moich danych osobowych w celu rezerwacji i obsługi wizyty."
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "duration": "Czas trwania",
+      "date": "Data",
+      "time": "Godzina",
+      "total": "Razem",
+      "notSelected": "Nie wybrano",
+      "payNote": "Płatność w salonie po wizycie."
+    },
+    "submit": "Potwierdź rezerwację",
+    "submitting": "Rezerwuję…",
+    "submitError": "Nie udało się zapisać rezerwacji. Spróbuj ponownie.",
+    "errors": {
+      "treatments": "Wybierz co najmniej jeden zabieg.",
+      "slot": "Wybierz datę i godzinę.",
+      "name": "Podaj imię i nazwisko.",
+      "phone": "Podaj poprawny numer telefonu.",
+      "email": "Podaj poprawny adres e-mail.",
+      "consent": "Zgoda jest wymagana do rezerwacji."
+    },
+    "success": {
+      "title": "Dziękujemy, {name}!",
+      "text": "Otrzymaliśmy Twoją prośbę o rezerwację. Skontaktujemy się z Tobą, aby ją potwierdzić.",
+      "when": "Twoja wizyta",
+      "bookAnother": "Umów kolejną wizytę",
+      "backHome": "Wróć na stronę główną"
+    }
+  },
+  "footer": {
+    "tagline": "Gabinet medycyny estetycznej i kosmetologii",
+    "hours": "Godziny otwarcia",
+    "weekdays": "Pon – Pt",
+    "saturday": "Sobota",
+    "sunday": "Niedziela",
+    "closed": "Nieczynne",
+    "rights": "Wszelkie prawa zastrzeżone."
   }
 }

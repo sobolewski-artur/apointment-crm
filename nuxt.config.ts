@@ -9,6 +9,19 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  app: {
+    head: {
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap',
+        },
+      ],
+    },
+  },
+
   // Values are overridden at runtime by NUXT_PUBLIC_FIREBASE_* env vars (see .env.example)
   runtimeConfig: {
     public: {
@@ -29,6 +42,8 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    // Used for hreflang/canonical links. Override in production with NUXT_PUBLIC_I18N_BASE_URL
+    baseUrl: 'http://localhost:3000',
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
     locales: [

@@ -1,8 +1,166 @@
 {
-  "app": {
-    "title": "Appointment CRM",
-    "welcome": "Welcome to Appointment CRM",
-    "description": "Manage your clients and appointments in one place.",
+  "brand": "Aura Beauty",
+  "nav": {
+    "home": "Home",
+    "treatments": "Treatments",
+    "booking": "Book now",
+    "cart": "Selected treatments",
     "language": "Language"
+  },
+  "home": {
+    "eyebrow": "Aesthetic medicine & beauty",
+    "title": "Natural results in expert hands",
+    "subtitle": "Botox, fillers, skin boosters and facial treatments performed by certified specialists. Pick your treatments and book a visit in a minute.",
+    "ctaTreatments": "Browse treatments",
+    "ctaBook": "Book an appointment",
+    "featuredTitle": "Popular treatments",
+    "featuredSubtitle": "Our clients' favourite procedures.",
+    "seeAll": "See all treatments",
+    "whyTitle": "Why Aura Beauty",
+    "why": {
+      "experts": {
+        "title": "Certified specialists",
+        "text": "Injectable treatments are performed only by qualified, experienced practitioners and preceded by a consultation."
+      },
+      "safety": {
+        "title": "Safe, approved products",
+        "text": "We use only certified preparations and sterile, single-use equipment."
+      },
+      "natural": {
+        "title": "Natural look",
+        "text": "We refresh your features without changing who you are."
+      }
+    },
+    "ctaTitle": "Reserve your visit",
+    "ctaText": "Choose a convenient day and time — it takes less than a minute."
+  },
+  "categories": {
+    "all": "All",
+    "injectables": "Injectables",
+    "facial": "Facial treatments",
+    "lashes": "Lashes & brows"
+  },
+  "treatments": {
+    "title": "Treatments",
+    "subtitle": "Select one or more treatments and continue to booking.",
+    "add": "Add",
+    "added": "Added",
+    "selectedBar": "No treatments selected | 1 treatment selected | {count} treatments selected",
+    "continue": "Continue to booking",
+    "items": {
+      "botox-1-area": {
+        "name": "Botox – 1 area",
+        "description": "Smooths dynamic wrinkles in one area of your choice: forehead, frown lines or crow's feet."
+      },
+      "botox-3-areas": {
+        "name": "Botox – 3 areas",
+        "description": "Complete upper-face rejuvenation: forehead, frown lines and crow's feet in a single visit."
+      },
+      "botox-bruxism": {
+        "name": "Botox for bruxism",
+        "description": "Relaxes the masseter muscles, relieving teeth grinding and jaw tension while slimming the jawline."
+      },
+      "botox-hyperhidrosis": {
+        "name": "Botox for excessive sweating",
+        "description": "Blocks underarm sweat glands, keeping you dry for up to 6–9 months."
+      },
+      "lip-augmentation": {
+        "name": "Lip augmentation",
+        "description": "Hyaluronic acid filler (1 ml) for fuller, well-defined and hydrated lips."
+      },
+      "skin-booster": {
+        "name": "Skin booster",
+        "description": "Intensive hyaluronic acid hydration that improves skin firmness, elasticity and glow."
+      },
+      "mesotherapy": {
+        "name": "Needle mesotherapy",
+        "description": "A cocktail of vitamins and active ingredients delivered into the skin to revitalise it."
+      },
+      "deep-cleansing": {
+        "name": "Deep cleansing facial",
+        "description": "Professional cleansing, exfoliation and hydration for fresh, radiant skin."
+      },
+      "chemical-peel": {
+        "name": "Chemical peel",
+        "description": "Acid exfoliation that evens skin tone, reduces discolouration and refines pores."
+      },
+      "microneedling": {
+        "name": "Microneedling",
+        "description": "Stimulates collagen production to reduce scars, fine lines and enlarged pores."
+      },
+      "lash-lift": {
+        "name": "Lash lift & tint",
+        "description": "Curls and darkens your natural lashes for an open-eyed look lasting up to 6 weeks."
+      },
+      "brow-lamination": {
+        "name": "Brow lamination",
+        "description": "Styles and sets brow hairs for full, groomed brows — shaping and tint included."
+      }
+    }
+  },
+  "booking": {
+    "title": "Book an appointment",
+    "subtitle": "Review your treatments, pick a date and time and leave your contact details.",
+    "loading": "Loading…",
+    "steps": {
+      "treatments": "Your treatments",
+      "datetime": "Date & time",
+      "details": "Your details"
+    },
+    "empty": "You haven't selected any treatments yet.",
+    "browse": "Browse treatments",
+    "addMore": "+ Add more treatments",
+    "remove": "Remove",
+    "closed": "Closed",
+    "pickDate": "Select a day to see available times.",
+    "checking": "Checking availability…",
+    "noSlots": "No free times on this day. Please choose another date.",
+    "slotsError": "We couldn't load availability.",
+    "retry": "Try again",
+    "fields": {
+      "name": "Full name",
+      "phone": "Phone number",
+      "email": "Email",
+      "optional": "optional",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything we should know before your visit?",
+      "consent": "I agree to the processing of my personal data in order to book and manage my appointment."
+    },
+    "summary": {
+      "title": "Summary",
+      "duration": "Duration",
+      "date": "Date",
+      "time": "Time",
+      "total": "Total",
+      "notSelected": "Not selected",
+      "payNote": "Payment at the salon after your visit."
+    },
+    "submit": "Confirm booking",
+    "submitting": "Booking…",
+    "submitError": "We couldn't save your booking. Please try again.",
+    "errors": {
+      "treatments": "Select at least one treatment.",
+      "slot": "Choose a date and time.",
+      "name": "Please enter your name.",
+      "phone": "Please enter a valid phone number.",
+      "email": "Please enter a valid email address.",
+      "consent": "Consent is required to book."
+    },
+    "success": {
+      "title": "Thank you, {name}!",
+      "text": "Your appointment request has been received. We will contact you to confirm it.",
+      "when": "Your visit",
+      "bookAnother": "Book another visit",
+      "backHome": "Back to home"
+    }
+  },
+  "footer": {
+    "tagline": "Aesthetic medicine & beauty salon",
+    "hours": "Opening hours",
+    "weekdays": "Mon – Fri",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "closed": "Closed",
+    "rights": "All rights reserved."
   }
 }

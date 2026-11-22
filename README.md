@@ -1,75 +1,38 @@
-# Nuxt Minimal Starter
+# Aura Beauty – appointment booking
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 4 + Tailwind CSS v4 + @nuxtjs/i18n (EN/PL) + Firebase (Firestore).
+
+This project uses **pnpm** only.
 
 ## Setup
 
-Make sure to install dependencies:
-
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+cp .env.example .env   # fill in the Firebase web config
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+## Development
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+pnpm dev         # http://localhost:3000
+pnpm typecheck
 ```
 
 ## Production
 
-Build the application for production:
-
 ```bash
-# npm
-npm run build
-
-# pnpm
 pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+node --env-file=.env .output/server/index.mjs
 ```
 
-Locally preview production build:
+## Firestore
+
+Create a Firestore database in the Firebase console, then deploy the security rules:
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+pnpm dlx firebase-tools login
+pnpm dlx firebase-tools deploy --only firestore:rules
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Bookings are stored in `appointments` (create-only for clients) and `busySlots`
+(anonymous time ranges, publicly readable for availability). See `firestore.rules`.
