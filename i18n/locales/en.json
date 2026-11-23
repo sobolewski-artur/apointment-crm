@@ -178,7 +178,8 @@
     "sunday": "Sunday",
     "closed": "Closed",
     "rights": "All rights reserved.",
-    "photos": "Photo credits"
+    "photos": "Photo credits",
+    "madeBy": "Website by {name}"
   },
   "admin": {
     "title": "Appointments",

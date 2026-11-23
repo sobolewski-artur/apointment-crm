@@ -36,10 +36,13 @@ const year = new Date().getFullYear()
         </dl>
       </div>
     </div>
-    <div class="border-t border-stone-100 py-5 text-center text-xs text-stone-400">
-      © {{ year }} {{ t('brand') }}. {{ t('footer.rights') }}
-      ·
-      <NuxtLinkLocale to="/credits" class="underline-offset-2 hover:text-stone-600 hover:underline">{{ t('footer.photos') }}</NuxtLinkLocale>
+    <div class="border-t border-stone-100 px-4 py-5 text-center text-xs text-stone-400">
+      <p>
+        © {{ year }} {{ t('brand') }}. {{ t('footer.rights') }}
+        ·
+        <NuxtLinkLocale to="/credits" class="underline-offset-2 hover:text-stone-600 hover:underline">{{ t('footer.photos') }}</NuxtLinkLocale>
+      </p>
+      <p class="mt-1">{{ t('footer.madeBy', { name: 'Artur Sobolewski' }) }}</p>
     </div>
   </footer>
 </template>

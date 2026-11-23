@@ -178,7 +178,8 @@
     "sunday": "Niedziela",
     "closed": "Nieczynne",
     "rights": "Wszelkie prawa zastrzeżone.",
-    "photos": "Autorzy zdjęć"
+    "photos": "Autorzy zdjęć",
+    "madeBy": "Projekt i wykonanie strony: {name}"
   },
   "admin": {
     "title": "Wizyty",
