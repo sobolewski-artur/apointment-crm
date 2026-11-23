@@ -26,7 +26,20 @@ https://apointment-crm.web.app
 ```bash
 pnpm run deploy        # nuxt generate + firebase deploy --only hosting
 pnpm run deploy:rules  # upload firestore.rules
+pnpm exec firebase deploy --only functions   # Cloud Functions (functions/)
 ```
+
+## Bot protection (Cloudflare Turnstile)
+
+Online bookings go through the `createBooking` Cloud Function (`functions/`, region `europe-west4`):
+it verifies the Turnstile token with Cloudflare, validates the booking and saves it in a transaction
+that rejects overlapping bookings. Firestore rules don't allow browsers to create bookings directly
+(only admins, for phone bookings).
+
+- Site key: `runtimeConfig.public.turnstileSiteKey` in `nuxt.config.ts` (public).
+- Secret key: Firebase Secret Manager, never in the repo. To change it:
+  `pnpm exec firebase functions:secrets:set TURNSTILE_SECRET`, then redeploy functions.
+- Local development: add `localhost` to the widget's hostnames in the Cloudflare dashboard.
 
 The Firebase web config from `.env` is baked in at generate time. Requires being logged in:
 `pnpm exec firebase login`.

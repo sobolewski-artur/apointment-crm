@@ -26,6 +26,9 @@ export default defineNuxtConfig({
   // Values are overridden at runtime by NUXT_PUBLIC_FIREBASE_* env vars (see .env.example)
   runtimeConfig: {
     public: {
+      // Cloudflare Turnstile site key (public). The secret lives in Firebase Secret Manager
+      // (TURNSTILE_SECRET) and is only used by the createBooking Cloud Function.
+      turnstileSiteKey: '0x4AAAAAAGLqcrYgEpchDghH',
       firebase: {
         apiKey: '',
         authDomain: '',
@@ -50,7 +53,7 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
     // Pre-bundle Firebase so the dev server doesn't re-optimize and reload on first use
     optimizeDeps: {
-      include: ['firebase/app', 'firebase/analytics', 'firebase/auth', 'firebase/firestore'],
+      include: ['firebase/app', 'firebase/analytics', 'firebase/auth', 'firebase/firestore', 'firebase/functions'],
     },
   },
 

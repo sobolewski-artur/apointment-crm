@@ -62,7 +62,7 @@ async function save() {
   const date = selectedDate.value
   const start = selectedStart.value
   try {
-    await api.createAppointment({
+    await api.createPhoneBooking({
       treatments: items.value.map(({ id, price, durationMin }) => ({ id, price, durationMin })),
       totalPrice: totalPrice.value,
       durationMin: totalDuration.value,
@@ -74,7 +74,7 @@ async function save() {
       customer: { name: form.name.trim(), phone: form.phone.trim(), email: form.email.trim() },
       notes: form.notes.trim(),
       locale: locale.value,
-    }, { status: 'confirmed', source: 'phone' })
+    }, 'confirmed')
     emit('saved', date)
   }
   catch (error) {

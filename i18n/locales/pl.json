@@ -157,7 +157,10 @@
       "name": "Podaj imię i nazwisko.",
       "phone": "Podaj poprawny numer telefonu.",
       "email": "Podaj poprawny adres e-mail.",
-      "consent": "Zgoda jest wymagana do rezerwacji."
+      "consent": "Zgoda jest wymagana do rezerwacji.",
+      "turnstile": "Potwierdź, że nie jesteś robotem.",
+      "turnstileFailed": "Weryfikacja nie powiodła się lub wygasła. Potwierdź ponownie i wyślij formularz.",
+      "turnstileLoad": "Nie udało się wczytać weryfikacji. Wyłącz blokowanie dla tej strony lub użyj innej przeglądarki."
     },
     "success": {
       "title": "Dziękujemy, {name}!",

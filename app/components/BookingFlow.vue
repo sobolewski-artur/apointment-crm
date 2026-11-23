@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { BOOKING_DAYS_AHEAD, MIN_LEAD_MIN, openingHours } from '~/data/salon'
 import { getStaff } from '~/data/staff'
-import { isSlotTakenError } from '~/composables/useBookingApi'
+import { isSlotTakenError, isVerificationError } from '~/composables/useBookingApi'
 import { ANY_STAFF as ANY } from '~/composables/useBookingSlots'
 
 const { t, locale } = useI18n()
@@ -44,10 +44,15 @@ const days = Array.from({ length: BOOKING_DAYS_AHEAD }, (_, i) => {
 const form = reactive({ name: '', phone: '', email: '', notes: '', consent: false })
 const attempted = ref(false)
 const submitting = ref(false)
-const submitError = ref<'taken' | 'generic' | null>(null)
+const submitError = ref<'taken' | 'verification' | 'generic' | null>(null)
+
+/* ---------- Turnstile (bot protection, verified by the createBooking function) ---------- */
+const turnstileToken = ref<string | null>(null)
+const turnstile = ref<{ reset: () => void }>()
 
 const errors = computed(() => {
-  const e: Partial<Record<'treatments' | 'slot' | 'name' | 'phone' | 'email' | 'consent', string>> = {}
+  const e: Partial<Record<'treatments' | 'slot' | 'name' | 'phone' | 'email' | 'consent' | 'turnstile', string>> = {}
+  if (!turnstileToken.value) e.turnstile = t('booking.errors.turnstile')
   if (!count.value) e.treatments = t('booking.errors.treatments')
   else if (noSpecialist.value) e.treatments = t('booking.noSpecialist')
   if (selectedStart.value === null) e.slot = t('booking.errors.slot')
@@ -73,7 +78,7 @@ const confirmation = ref<Confirmation | null>(null)
 async function submit() {
   attempted.value = true
   const staffMember = assignedStaffId.value ? getStaff(assignedStaffId.value) : undefined
-  if (Object.keys(errors.value).length || !selectedDate.value || selectedStart.value === null || !staffMember) return
+  if (Object.keys(errors.value).length || !selectedDate.value || selectedStart.value === null || !staffMember || !turnstileToken.value) return
 
   submitting.value = true
   submitError.value = null
@@ -81,7 +86,7 @@ async function submit() {
   const start = selectedStart.value
 
   try {
-    await api.createAppointment({
+    await api.submitOnlineBooking({
       treatments: items.value.map(({ id, price, durationMin }) => ({ id, price, durationMin })),
       totalPrice: totalPrice.value,
       durationMin: totalDuration.value,
@@ -93,7 +98,7 @@ async function submit() {
       customer: { name: form.name.trim(), phone: form.phone.trim(), email: form.email.trim() },
       notes: form.notes.trim(),
       locale: locale.value,
-    })
+    }, turnstileToken.value)
 
     confirmation.value = {
       name: form.name.trim(),
@@ -112,7 +117,8 @@ async function submit() {
   }
   catch (error) {
     console.error('[booking] failed to create appointment', error)
-    submitError.value = isSlotTakenError(error) ? 'taken' : 'generic'
+    submitError.value = isSlotTakenError(error) ? 'taken' : isVerificationError(error) ? 'verification' : 'generic'
+    turnstile.value?.reset() // tokens are single-use
     // Refresh availability; the `slots` watcher drops the selected time if it's gone
     await loadBusy(date)
   }
@@ -391,15 +397,20 @@ const inputClass = 'mt-1.5 block w-full rounded-xl border-0 bg-white px-3.5 py-2
           </div>
           <p class="mt-1 text-xs text-stone-500">{{ t('booking.summary.payNote') }}</p>
 
+          <TurnstileWidget ref="turnstile" v-model="turnstileToken" action="booking" class="mt-6" />
+          <p v-if="showError('turnstile')" class="mt-1 text-sm text-red-600">{{ showError('turnstile') }}</p>
+
           <button
             type="submit"
             :disabled="submitting"
-            class="mt-6 w-full rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-wait disabled:opacity-60"
+            class="mt-4 w-full rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-wait disabled:opacity-60"
           >
             {{ submitting ? t('booking.submitting') : t('booking.submit') }}
           </button>
           <p v-if="submitError" class="mt-3 text-sm text-red-600">
-            {{ submitError === 'taken' ? t('booking.slotTaken') : t('booking.submitError') }}
+            {{ submitError === 'taken'
+              ? t('booking.slotTaken')
+              : submitError === 'verification' ? t('booking.errors.turnstileFailed') : t('booking.submitError') }}
           </p>
         </div>
       </aside>

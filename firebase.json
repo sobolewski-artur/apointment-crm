@@ -2,6 +2,15 @@
   "firestore": {
     "rules": "firestore.rules"
   },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", ".git", "src", "tsconfig.json", "*.log"],
+      "predeploy": ["pnpm --dir functions run build"]
+    }
+  ],
   "hosting": {
     "public": ".output/public",
     "cleanUrls": true,

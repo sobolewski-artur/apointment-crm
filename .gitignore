@@ -16,6 +16,9 @@ logs
 # Firebase CLI cache
 .firebase
 
+# Compiled Cloud Functions
+functions/lib
+
 # Misc
 .DS_Store
 .fleet

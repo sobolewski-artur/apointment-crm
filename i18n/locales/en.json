@@ -157,7 +157,10 @@
       "name": "Please enter your name.",
       "phone": "Please enter a valid phone number.",
       "email": "Please enter a valid email address.",
-      "consent": "Consent is required to book."
+      "consent": "Consent is required to book.",
+      "turnstile": "Please complete the security check.",
+      "turnstileFailed": "The security check failed or expired. Please complete it again and resubmit.",
+      "turnstileLoad": "The security check couldn't load. Disable blockers for this site or try another browser."
     },
     "success": {
       "title": "Thank you, {name}!",

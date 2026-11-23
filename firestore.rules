@@ -3,18 +3,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // New booking
+    // New booking written directly from a browser: admins only (phone bookings).
+    // Online bookings are created by the createBooking Cloud Function after a Turnstile
+    // check; it uses the Admin SDK, which bypasses these rules.
     function validAppointment(d) {
-      return d.keys().hasOnly([
+      return isAdmin()
+        && d.keys().hasOnly([
           'treatments', 'totalPrice', 'durationMin', 'date', 'startMinutes', 'startTime',
           'staffId', 'staffName', 'customer', 'notes', 'locale', 'status', 'source', 'createdAt'
         ])
-        && (
-          // Anyone: online booking awaiting confirmation
-          (d.source == 'online' && d.status == 'pending')
-          // Admins: booking taken by phone, usually confirmed right away
-          || (d.source == 'phone' && d.status in ['pending', 'confirmed'] && isAdmin())
-        )
+        && d.source == 'phone'
+        && d.status in ['pending', 'confirmed']
         && d.createdAt == request.time
         && validBookingFields(d);
     }
@@ -72,7 +71,8 @@ service cloud.firestore {
     // Must be written in the same batch as its appointment.
     match /busySlots/{id} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['appointmentId', 'staffId', 'date', 'start', 'end'])
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['appointmentId', 'staffId', 'date', 'start', 'end'])
         && request.resource.data.appointmentId is string
         && id == request.resource.data.staffId + '_' + request.resource.data.date + '_' + string(request.resource.data.start)
         && existsAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId))
