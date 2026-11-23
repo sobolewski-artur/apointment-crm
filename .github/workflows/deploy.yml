@@ -1,0 +1,59 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two deploys at once; queue them instead of cancelling a deploy half-way
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity Federation (keyless auth to Google Cloud)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Public Firebase web config, baked into the static site at generate time (repository variables)
+      NUXT_PUBLIC_FIREBASE_API_KEY: ${{ vars.NUXT_PUBLIC_FIREBASE_API_KEY }}
+      NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      NUXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.NUXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ vars.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NUXT_PUBLIC_FIREBASE_APP_ID: ${{ vars.NUXT_PUBLIC_FIREBASE_APP_ID }}
+      NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ vars.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6 # version from package.json "packageManager"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: |
+          pnpm typecheck
+          pnpm --dir functions run typecheck
+
+      - name: Build site
+        run: pnpm generate
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      # Hosting + Firestore rules + Cloud Functions. Unchanged functions and rules are skipped by the CLI.
+      - name: Deploy to Firebase
+        run: pnpm exec firebase deploy --only hosting,firestore:rules,functions --project apointment-crm --non-interactive --force

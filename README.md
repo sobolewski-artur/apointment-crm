@@ -29,6 +29,18 @@ pnpm run deploy:rules  # upload firestore.rules
 pnpm exec firebase deploy --only functions   # Cloud Functions (functions/)
 ```
 
+### Automatic deploys (GitHub Actions)
+
+Every push to `main` runs `.github/workflows/deploy.yml`: install, typecheck (site + functions),
+`nuxt generate`, then `firebase deploy --only hosting,firestore:rules,functions` (unchanged parts are skipped).
+It can also be started manually from the Actions tab (*Run workflow*).
+
+- Auth: keyless **Workload Identity Federation** — the `github` pool only trusts
+  `sobolewski-artur/apointment-crm` on `refs/heads/main`, which may act as the
+  `github-deployer@apointment-crm.iam.gserviceaccount.com` service account. No key file exists.
+- Repository variables (Settings → Secrets and variables → Actions → Variables):
+  `NUXT_PUBLIC_FIREBASE_*` (public web config) and `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT`.
+
 ## Bot protection (Cloudflare Turnstile)
 
 Online bookings go through the `createBooking` Cloud Function (`functions/`, region `europe-west4`):
