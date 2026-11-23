@@ -42,7 +42,16 @@ const year = new Date().getFullYear()
         ·
         <NuxtLinkLocale to="/credits" class="underline-offset-2 hover:text-stone-600 hover:underline">{{ t('footer.photos') }}</NuxtLinkLocale>
       </p>
-      <p class="mt-1">{{ t('footer.madeBy', { name: 'Artur Sobolewski' }) }}</p>
+      <i18n-t keypath="footer.madeBy" tag="p" class="mt-1" scope="global">
+        <template #name>
+          <a
+            href="https://asobolewski.pl"
+            target="_blank"
+            rel="noopener"
+            class="font-medium text-stone-500 underline-offset-2 hover:text-stone-700 hover:underline"
+          >Artur Sobolewski</a>
+        </template>
+      </i18n-t>
     </div>
   </footer>
 </template>
